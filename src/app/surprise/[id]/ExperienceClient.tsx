@@ -3,11 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ParticleBackground } from "@/components/effects/ParticleBackground";
-import { Music, Music4, Play, Share2, Copy, RefreshCw, Sparkles, CheckCircle2 } from "lucide-react";
+import { Music, Music4, Play, Share2, Copy, RefreshCw, CheckCircle2, Sparkles } from "lucide-react";
 import confetti from "canvas-confetti";
-import * as THREE from "three";
 
-export function ExperienceClient({ data }: { data: any }) {
+interface ExperienceData {
+  name: string;
+  message: string;
+}
+
+export function ExperienceClient({ data }: { data: ExperienceData }) {
   const [scene, setScene] = useState(0); 
   // 0: Start Button, 1: Intro, 2: Name Reveal, 3: Message, 4: Interactive, 5: Finale
   
@@ -64,7 +68,7 @@ export function ExperienceClient({ data }: { data: any }) {
 
   // Auto Sparkle for Scene 4
   useEffect(() => {
-    let interval: any;
+    let interval: NodeJS.Timeout | undefined;
     if (scene === 4) {
       interval = setInterval(() => {
         const x = Math.random() * 0.8 + 0.1;
@@ -88,7 +92,7 @@ export function ExperienceClient({ data }: { data: any }) {
 
       const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
-      const interval: any = setInterval(function() {
+      const interval: NodeJS.Timeout = setInterval(function() {
         const timeLeft = animationEnd - Date.now();
 
         if (timeLeft <= 0) {
@@ -235,7 +239,7 @@ export function ExperienceClient({ data }: { data: any }) {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 2, staggerChildren: 0.1 }}
               >
-                {data.message.split("").map((char: string, index: number) => (
+                {data.message.split("").map((char, index) => (
                   <motion.span
                     key={index}
                     initial={{ opacity: 0, y: 10, filter: "blur(5px)" }}
@@ -249,15 +253,14 @@ export function ExperienceClient({ data }: { data: any }) {
               </motion.p>
               <AnimatePresence>
                 {showContinue && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    className="mt-12 flex justify-center w-full pb-8"
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mt-12"
                   >
                     <button 
                       onClick={() => setScene(4)}
-                      className="px-8 py-4 sm:py-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-all backdrop-blur-md active:scale-95 text-lg font-medium shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                      className="px-8 py-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white/90 transition-all flex items-center gap-2 mx-auto"
                     >
                       Continue Magic ✨
                     </button>
@@ -270,15 +273,27 @@ export function ExperienceClient({ data }: { data: any }) {
           {scene === 4 && (
             <motion.div
               key="interactive"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.5 }}
-              className="px-4"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, filter: "blur(20px)" }}
+              transition={{ duration: 1 }}
             >
-              <h3 className="text-2xl md:text-4xl font-light text-white/80 animate-pulse leading-snug">
-                Tap or click around for magic...
-              </h3>
+              <div className="flex flex-col items-center gap-8">
+                <div className="relative">
+                  <motion.div 
+                    animate={{ scale: [1, 1.2, 1] }} 
+                    transition={{ repeat: Infinity, duration: 2 }}
+                    className="absolute inset-0 bg-pink-500/20 blur-3xl rounded-full"
+                  />
+                  <div className="w-32 h-32 md:w-48 md:h-48 rounded-full border-2 border-white/30 flex items-center justify-center backdrop-blur-sm relative z-10">
+                    <Sparkles className="w-12 h-12 md:w-20 md:h-20 text-yellow-300 animate-pulse" />
+                  </div>
+                </div>
+                <h2 className="text-3xl md:text-4xl font-light text-white/80 tracking-widest uppercase">
+                  Tap or click for magic 
+                </h2>
+                <p className="text-white/50 italic">The real surprise is waiting...</p>
+              </div>
             </motion.div>
           )}
 
@@ -287,52 +302,56 @@ export function ExperienceClient({ data }: { data: any }) {
               key="finale"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 2, type: "spring" }}
-              className="space-y-12"
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              className="flex flex-col items-center gap-6"
             >
-              <div className="relative px-2 z-10">
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/40 via-pink-500/40 to-yellow-500/40 blur-[100px] z-[-1]" />
-                <h1 className="text-5xl sm:text-6xl md:text-8xl font-bold text-white mb-6 font-serif drop-shadow-[0_0_50px_rgba(255,255,255,0.4)] leading-tight">
-                  You are <span className="text-gradient block md:inline mt-2 md:mt-0">truly special</span>
-                </h1>
-                <div className="flex justify-center -mt-8 -mb-4 opacity-50 blur-[2px] hidden md:flex">
-                   <h1 className="text-5xl sm:text-6xl md:text-8xl font-bold text-transparent font-serif" style={{ WebkitTextStroke: '2px white' }}>
-                    You are truly special
-                  </h1>
-                </div>
+              <div className="relative mb-8">
+                <motion.div 
+                   animate={{ rotate: 360 }}
+                   transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                   className="absolute inset-[-40px] border border-dashed border-white/10 rounded-full"
+                />
+                <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                  HAPPY BIRTHDAY! 🎂
+                </h2>
               </div>
-
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 2, duration: 1 }}
-                className="flex flex-col sm:flex-row flex-wrap justify-center items-stretch sm:items-center gap-4 pt-4 md:pt-12 relative z-50 pointer-events-auto w-full max-w-[280px] sm:max-w-none mx-auto"
-              >
+              
+              <div className="flex flex-wrap justify-center gap-4 mt-8">
                 <button 
-                  onClick={replay}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-all backdrop-blur-md shadow-lg"
+                  onClick={copyLink}
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 transition-all"
                 >
-                  <RefreshCw className="w-5 h-5" /> Replay Magic
+                  {copied ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : <Copy className="w-5 h-5" />}
+                  {copied ? 'Copied!' : 'Copy Link'}
                 </button>
                 <button 
                   onClick={shareLink}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white transition-all shadow-lg"
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-600/30 hover:bg-purple-600/40 border border-purple-500/30 transition-all"
                 >
-                  <Share2 className="w-5 h-5" /> Share
+                  <Share2 className="w-5 h-5" />
+                  Share Surprise
                 </button>
                 <button 
-                  onClick={copyLink}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-all backdrop-blur-md shadow-lg"
+                  onClick={replay}
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-white/60"
                 >
-                  {copied ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : <Copy className="w-5 h-5" />} 
-                  {copied ? "Copied!" : "Copy Link"}
+                  <RefreshCw className="w-5 h-5" />
+                  Replay
                 </button>
-              </motion.div>
+              </div>
             </motion.div>
           )}
-
         </AnimatePresence>
       </div>
+
+      {/* Persistent Decorative Sparkles for finale */}
+      {scene === 5 && (
+        <div className="fixed inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
+             <div className="text-white/5 text-8xl md:text-[20rem] font-black select-none z-[-1]">
+                MAGIC
+             </div>
+        </div>
+      )}
     </div>
   );
 }
