@@ -43,7 +43,7 @@ class Particle {
     this.decay = isClickBurst ? Math.random() * 0.03 + 0.01 : 0; 
   }
 
-  update(width: number, height: number, index: number, array: InstanceType<typeof Particle>[]) {
+  update(width: number, height: number, index: number, array: any[]) {
     this.x += this.speedX;
     this.y += this.speedY;
     
@@ -102,7 +102,7 @@ class BurstParticle {
     this.decay = Math.random() * 0.02 + 0.01;
   }
 
-  update(index: number, array: InstanceType<typeof BurstParticle>[]) {
+  update(index: number, array: any[]) {
     this.x += this.speedX;
     this.y += this.speedY;
     this.opacity -= this.decay;
@@ -155,13 +155,13 @@ export function PinkSparkles({ clickPosition }: PinkSparklesProps) {
       
       for (let i = particlesArrayRef.current.length - 1; i >= 0; i--) {
         const p = particlesArrayRef.current[i];
-        if (p.update) {
+        if (p instanceof Particle) {
             p.update(canvas.width, canvas.height, i, particlesArrayRef.current);
+        } else if (p instanceof BurstParticle) {
+            p.update(i, particlesArrayRef.current);
         }
         if (particlesArrayRef.current[i]) {
-            if (p.draw) {
-                p.draw(ctx);
-            }
+            p.draw(ctx);
         }
       }
 

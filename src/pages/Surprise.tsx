@@ -1,6 +1,6 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { getSurpriseData } from "@/lib/db";
 import { motion, AnimatePresence } from "framer-motion";
 import { ParticleBackground } from "@/components/effects/ParticleBackground";
 import { Music, Music4, Play, Share2, Copy, RefreshCw, CheckCircle2, Sparkles } from "lucide-react";
@@ -11,10 +11,57 @@ interface ExperienceData {
   message: string;
 }
 
-export function ExperienceClient({ data }: { data: ExperienceData }) {
+export default function Surprise() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [data, setData] = useState<ExperienceData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) {
+      navigate("/");
+      return;
+    }
+    const fetchData = async () => {
+      const result = await getSurpriseData(id);
+      if (result) {
+        setData({ name: result.name, message: result.message });
+      } else {
+        console.error("Surprise not found");
+      }
+      setIsLoading(false);
+    };
+    fetchData();
+  }, [id, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center text-white/50">
+        <Sparkles className="animate-spin w-8 h-8 mr-2" />
+        Loading your magic...
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
+        <h1 className="text-2xl mb-4 text-white/80">Oops! This magic link doesn't exist.</h1>
+        <button 
+          onClick={() => navigate("/")}
+          className="px-6 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all text-white"
+        >
+          Create One
+        </button>
+      </div>
+    );
+  }
+
+  return <ExperienceClient data={data} />;
+}
+
+function ExperienceClient({ data }: { data: ExperienceData }) {
   const [scene, setScene] = useState(0); 
-  // 0: Start Button, 1: Intro, 2: Name Reveal, 3: Message, 4: Interactive, 5: Finale
-  
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [copied, setCopied] = useState(false);
@@ -66,7 +113,6 @@ export function ExperienceClient({ data }: { data: ExperienceData }) {
     return () => clearTimeout(timer);
   }, [scene, data.message.length]);
 
-  // Auto Sparkle for Scene 4
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined;
     if (scene === 4) {
@@ -151,7 +197,6 @@ export function ExperienceClient({ data }: { data: ExperienceData }) {
     >
       <ParticleBackground />
       
-      {/* Controls */}
       <AnimatePresence>
         {scene > 0 && (
           <motion.div 
@@ -169,7 +214,6 @@ export function ExperienceClient({ data }: { data: ExperienceData }) {
         )}
       </AnimatePresence>
 
-      {/* Center Content */}
       <div className="z-10 w-full max-w-4xl text-center">
         <AnimatePresence mode="wait">
           {scene === 0 && (
@@ -344,7 +388,6 @@ export function ExperienceClient({ data }: { data: ExperienceData }) {
         </AnimatePresence>
       </div>
 
-      {/* Persistent Decorative Sparkles for finale */}
       {scene === 5 && (
         <div className="fixed inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
              <div className="text-white/5 text-8xl md:text-[20rem] font-black select-none z-[-1]">

@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import SpotlightCard from "@/components/SpotlightCard";
 import { Button } from "@/components/ui/Button";
@@ -7,6 +5,7 @@ import { ParticleBackground } from "@/components/effects/ParticleBackground";
 import { MouseTrail } from "@/components/effects/MouseTrail";
 import { motion } from "framer-motion";
 import { Copy, Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
+import { saveSurpriseData } from "@/lib/db";
 
 export default function Home() {
   const [name, setName] = useState("");
@@ -21,15 +20,9 @@ export default function Home() {
     
     setIsGenerating(true);
     try {
-      const res = await fetch("/api/link", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, message }),
-      });
-      const data = await res.json();
-      
-      if (data.id) {
-        setGeneratedLink(`${window.location.origin}/surprise/${data.id}`);
+      const id = await saveSurpriseData({ name, message });
+      if (id) {
+        setGeneratedLink(`${window.location.origin}/surprise/${id}`);
       }
     } catch (error) {
       console.error(error);
