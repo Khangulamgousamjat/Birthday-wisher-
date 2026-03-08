@@ -395,8 +395,21 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
       )}
       
       {/* Footer */}
-      <footer className="absolute bottom-4 text-white/40 text-sm font-light z-20">
-        &copy; {new Date().getFullYear()} Digital Surprise Gift. Made by <span className="font-medium text-white/60">Gous Khan</span>.
+      <footer className="absolute bottom-6 flex flex-col items-center gap-1.5 text-white/40 text-sm font-light z-20">
+        <p>
+          Made by <span className="font-medium text-white/70">Gous Khan</span>
+        </p>
+        <p className="text-xs">
+          &copy; {new Date().getFullYear()} Digital Surprise Gift
+        </p>
+        <div className="mt-1">
+          <a 
+            href="mailto:gousk2004@gmail.com" 
+            className="text-white/40 hover:text-white/80 transition-colors text-xs flex items-center gap-1 border border-white/10 rounded-full px-3 py-1 bg-white/5 hover:bg-white/10"
+          >
+            Contact
+          </a>
+        </div>
       </footer>
     </div>
   );
