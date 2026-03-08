@@ -386,31 +386,31 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
               <div className="flex flex-wrap justify-center gap-4 mt-8">
                 <button 
                   onClick={copyLink}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 transition-all"
+                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto justify-center font-medium shadow-lg"
                 >
                   {copied ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : <Copy className="w-5 h-5" />}
                   {copied ? 'Copied!' : 'Copy Link'}
                 </button>
                 <button 
                   onClick={shareLink}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-600/30 hover:bg-purple-600/40 border border-purple-500/30 transition-all"
+                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-purple-600/60 border border-purple-500/50 text-white hover:bg-purple-500/80 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto justify-center shadow-[0_0_15px_rgba(168,85,247,0.4)] font-medium"
                 >
                   <Share2 className="w-5 h-5" />
                   Share Surprise
                 </button>
                 <button 
                   onClick={replay}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-white/60"
+                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto justify-center font-medium shadow-lg"
                 >
                   <RefreshCw className="w-5 h-5" />
                   Replay
                 </button>
               </div>
-              
+
               <div className="mt-4 pb-12">
                 <a 
                   href="/"
-                  className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white/80 hover:bg-white/10 transition-all text-sm font-medium"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 border border-white/25 text-white/90 hover:text-white hover:bg-white/25 transition-all text-sm font-bold shadow-[0_0_10px_rgba(255,255,255,0.1)]"
                 >
                   <Sparkles className="w-4 h-4" />
                   Create Your Own Magic Link
