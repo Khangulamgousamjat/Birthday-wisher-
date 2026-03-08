@@ -46,7 +46,7 @@ export default function Surprise() {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
         <h1 className="text-2xl mb-4 text-white/80">Oops! This magic link doesn't exist.</h1>
-        <button 
+        <button
           onClick={() => navigate("/")}
           className="px-6 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all text-white"
         >
@@ -60,7 +60,7 @@ export default function Surprise() {
 }
 
 function ExperienceClient({ data }: { data: ExperienceData }) {
-  const [scene, setScene] = useState(0); 
+  const [scene, setScene] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [copied, setCopied] = useState(false);
@@ -76,7 +76,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
     if (parsed && typeof parsed === 'object') {
       bodyText = parsed.body || "";
       if (parsed.finaleText) finaleText = parsed.finaleText;
-      
+
       if (parsed.selectedMusic && parsed.selectedMusic !== "custom") {
         customMusic = parsed.selectedMusic;
       } else if (parsed.musicBase64) {
@@ -89,10 +89,10 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
 
   useEffect(() => {
     if (customMusic === "none") return;
-    
+
     audioRef.current = new Audio(customMusic || "/Happy Birthday Song.mp3");
     audioRef.current.loop = true;
-    
+
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
@@ -102,7 +102,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
 
   const toggleMusic = () => {
     if (customMusic === "none") return;
-    
+
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
@@ -133,7 +133,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
     } else if (scene === 4) {
       timer = setTimeout(() => setScene(5), 7000);
     }
-    
+
     return () => clearTimeout(timer);
   }, [scene, bodyText.length]);
 
@@ -162,7 +162,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
 
       const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
-      const interval: NodeJS.Timeout = setInterval(function() {
+      const interval: NodeJS.Timeout = setInterval(function () {
         const timeLeft = animationEnd - Date.now();
 
         if (timeLeft <= 0) {
@@ -215,19 +215,19 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
   };
 
   return (
-    <div 
+    <div
       className="relative min-h-screen w-full overflow-hidden flex flex-col items-center justify-between p-4 sm:p-8 selection:bg-purple-500/30 touch-none"
       onPointerDown={handlePointerDown}
     >
-      
+
       <AnimatePresence>
         {scene > 0 && customMusic !== "none" && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="absolute top-6 right-6 z-50 flex gap-4"
           >
-            <button 
+            <button
               onClick={toggleMusic}
               className="p-3 rounded-full bg-white/5 border border-white/10 text-white/80 hover:bg-white/10 hover:text-white transition-all backdrop-blur-md"
             >
@@ -245,7 +245,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
               exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
               transition={{ duration: 0.8 }}
             >
-              <button 
+              <button
                 onClick={startExperience}
                 className="group relative inline-flex items-center justify-center rounded-2xl px-10 py-5 text-lg font-medium transition-all hover:scale-105 active:scale-95 bg-white/10 border border-white/20 backdrop-blur-md hover:bg-white/20 hover:border-white/40 overflow-hidden shadow-[0_0_40px_rgba(168,85,247,0.4)]"
               >
@@ -300,7 +300,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
               className="max-w-full md:max-w-2xl mx-auto px-4 sm:px-6 relative w-full"
             >
               <div className="absolute inset-0 bg-purple-900/10 blur-[60px] z-[-1]" />
-              <motion.p 
+              <motion.p
                 className="text-2xl md:text-4xl leading-relaxed font-light text-white/90"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -320,12 +320,12 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
               </motion.p>
               <AnimatePresence>
                 {showContinue && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="mt-12"
                   >
-                    <button 
+                    <button
                       onClick={() => setScene(4)}
                       className="px-8 py-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white/90 transition-all flex items-center gap-2 mx-auto"
                     >
@@ -347,8 +347,8 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
             >
               <div className="flex flex-col items-center gap-8">
                 <div className="relative">
-                  <motion.div 
-                    animate={{ scale: [1, 1.2, 1] }} 
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1] }}
                     transition={{ repeat: Infinity, duration: 2 }}
                     className="absolute inset-0 bg-pink-500/20 blur-3xl rounded-full"
                   />
@@ -357,7 +357,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                   </div>
                 </div>
                 <h2 className="text-3xl md:text-4xl font-light text-white/80 tracking-widest uppercase">
-                  Tap or click for magic 
+                  Tap or click for magic
                 </h2>
                 <p className="text-white/50 italic">The real surprise is waiting...</p>
               </div>
@@ -373,34 +373,34 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
               className="flex flex-col items-center gap-6"
             >
               <div className="relative mb-8">
-                <motion.div 
-                   animate={{ rotate: 360 }}
-                   transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                   className="absolute inset-[-40px] border border-dashed border-white/10 rounded-full"
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  className="absolute inset-[-40px] border border-dashed border-white/10 rounded-full"
                 />
                 <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] px-4">
                   {finaleText}
                 </h2>
               </div>
-              
+
               <div className="flex flex-wrap justify-center gap-4 mt-8">
-                <button 
+                <button
                   onClick={copyLink}
-                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto justify-center font-medium shadow-lg"
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 transition-all"
                 >
                   {copied ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : <Copy className="w-5 h-5" />}
                   {copied ? 'Copied!' : 'Copy Link'}
                 </button>
-                <button 
+                <button
                   onClick={shareLink}
-                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-purple-600/60 border border-purple-500/50 text-white hover:bg-purple-500/80 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto justify-center shadow-[0_0_15px_rgba(168,85,247,0.4)] font-medium"
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-600/30 hover:bg-purple-600/40 border border-purple-500/30 transition-all"
                 >
                   <Share2 className="w-5 h-5" />
                   Share Surprise
                 </button>
-                <button 
+                <button
                   onClick={replay}
-                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto justify-center font-medium shadow-lg"
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-white/60"
                 >
                   <RefreshCw className="w-5 h-5" />
                   Replay
@@ -408,13 +408,13 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
               </div>
 
               <div className="mt-4 pb-12">
-                <a 
-                  href="/"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 border border-white/25 text-white/90 hover:text-white hover:bg-white/25 transition-all text-sm font-bold shadow-[0_0_10px_rgba(255,255,255,0.1)]"
+                <button
+                  onClick={copyLink}
+                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto justify-center font-medium shadow-lg"
                 >
                   <Sparkles className="w-4 h-4" />
                   Create Your Own Magic Link
-                </a>
+                </button>
               </div>
             </motion.div>
           )}
@@ -423,20 +423,20 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
 
       {scene === 5 && (
         <div className="fixed inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
-             <div className="text-white/5 text-8xl md:text-[20rem] font-black select-none z-[-1]">
-                MAGIC
-             </div>
+          <div className="text-white/5 text-8xl md:text-[20rem] font-black select-none z-[-1]">
+            MAGIC
+          </div>
         </div>
       )}
-      
+
       {/* Footer */}
       <footer className="w-full flex flex-col items-center gap-1.5 text-white/40 text-sm font-light z-20 pb-2 md:pb-4">
         <p className="text-xs">
           &copy; {new Date().getFullYear()} Digital Surprise Gift
         </p>
         <div className="mt-1">
-          <a 
-            href="mailto:gousk2004@gmail.com" 
+          <a
+            href="mailto:gousk2004@gmail.com"
             className="text-white/40 hover:text-white/80 transition-colors text-xs flex items-center gap-1 border border-white/10 rounded-full px-3 py-1 bg-white/5 hover:bg-white/10"
           >
             Contact

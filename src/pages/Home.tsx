@@ -168,6 +168,13 @@ export default function Home() {
                         className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all text-sm cursor-pointer"
                       >
                         <option value="/Happy Birthday Song.mp3" className="bg-gray-900">Default - Happy Birthday 🎂</option>
+                        <option value="/happy birthday slowed.mp3" className="bg-gray-900">Happy Birthday (Slowed) 🎂</option>
+                        <option value="/anniversary.mp3" className="bg-gray-900">Anniversary 💍</option>
+                        <option value="/happy christmas.mp3" className="bg-gray-900">Happy Christmas 🎄</option>
+                        <option value="/romantic.mp3" className="bg-gray-900">Romantic ❤️</option>
+                        <option value="/pianocafe.mp3" className="bg-gray-900">Piano Cafe 🎹</option>
+                        <option value="/funky groovin.mp3" className="bg-gray-900">Funky Groovin 🕺</option>
+                        <option value="/playhouse.mp3" className="bg-gray-900">Playhouse 🎮</option>
                         <option value="none" className="bg-gray-900">No Background Music 🔇</option>
                         <option value="custom" className="bg-gray-900 font-bold text-purple-400">Upload Your Own Song 🎵</option>
                       </select>
