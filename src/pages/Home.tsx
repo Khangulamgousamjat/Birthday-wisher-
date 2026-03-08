@@ -1,7 +1,6 @@
 import { useState } from "react";
 import SpotlightCard from "@/components/SpotlightCard";
 import { Button } from "@/components/ui/Button";
-import { ParticleBackground } from "@/components/effects/ParticleBackground";
 import { MouseTrail } from "@/components/effects/MouseTrail";
 import { motion } from "framer-motion";
 import { Copy, Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
@@ -39,7 +38,6 @@ export default function Home() {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center p-4 sm:p-24 overflow-hidden">
-      <ParticleBackground />
       <MouseTrail />
       
       <div className="z-10 w-full max-w-xl">

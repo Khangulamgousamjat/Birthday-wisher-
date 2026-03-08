@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getSurpriseData } from "@/lib/db";
 import { motion, AnimatePresence } from "framer-motion";
-import { ParticleBackground } from "@/components/effects/ParticleBackground";
 import { Music, Music4, Play, Share2, Copy, RefreshCw, CheckCircle2, Sparkles } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -195,7 +194,6 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
       className="relative min-h-screen w-full overflow-hidden flex flex-col items-center justify-center p-4 selection:bg-purple-500/30 touch-none"
       onPointerDown={handlePointerDown}
     >
-      <ParticleBackground />
       
       <AnimatePresence>
         {scene > 0 && (
