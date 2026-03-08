@@ -66,8 +66,31 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
   const [copied, setCopied] = useState(false);
   const [showContinue, setShowContinue] = useState(false);
 
+  // Parse custom parameters
+  let bodyText = data.message;
+  let finaleText = "HAPPY BIRTHDAY! 🎂";
+  let customMusic = "";
+
+  try {
+    const parsed = JSON.parse(data.message);
+    if (parsed && typeof parsed === 'object') {
+      bodyText = parsed.body || "";
+      if (parsed.finaleText) finaleText = parsed.finaleText;
+      
+      if (parsed.selectedMusic && parsed.selectedMusic !== "custom") {
+        customMusic = parsed.selectedMusic;
+      } else if (parsed.musicBase64) {
+        customMusic = parsed.musicBase64;
+      }
+    }
+  } catch (e) {
+    // Legacy plain text message fallback
+  }
+
   useEffect(() => {
-    audioRef.current = new Audio("/Happy Birthday Song.mp3");
+    if (customMusic === "none") return;
+    
+    audioRef.current = new Audio(customMusic || "/Happy Birthday Song.mp3");
     audioRef.current.loop = true;
     
     return () => {
@@ -75,9 +98,11 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
         audioRef.current.pause();
       }
     };
-  }, []);
+  }, [customMusic]);
 
   const toggleMusic = () => {
+    if (customMusic === "none") return;
+    
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
@@ -89,7 +114,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
   };
 
   const startExperience = () => {
-    if (audioRef.current && !isPlaying) {
+    if (customMusic !== "none" && audioRef.current && !isPlaying) {
       audioRef.current.play().catch(e => console.log("Audio play blocked", e));
       setIsPlaying(true);
     }
@@ -103,14 +128,14 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
     } else if (scene === 2) {
       timer = setTimeout(() => setScene(3), 5000);
     } else if (scene === 3) {
-      const typeDuration = Math.max(2000, data.message.length * 50 + 1000);
+      const typeDuration = Math.max(2000, bodyText.length * 50 + 1000);
       timer = setTimeout(() => setShowContinue(true), typeDuration);
     } else if (scene === 4) {
       timer = setTimeout(() => setScene(5), 7000);
     }
     
     return () => clearTimeout(timer);
-  }, [scene, data.message.length]);
+  }, [scene, bodyText.length]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined;
@@ -196,7 +221,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
     >
       
       <AnimatePresence>
-        {scene > 0 && (
+        {scene > 0 && customMusic !== "none" && (
           <motion.div 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -281,7 +306,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 2, staggerChildren: 0.1 }}
               >
-                {data.message.split("").map((char, index) => (
+                {bodyText.split("").map((char, index) => (
                   <motion.span
                     key={index}
                     initial={{ opacity: 0, y: 10, filter: "blur(5px)" }}
@@ -353,8 +378,8 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                    className="absolute inset-[-40px] border border-dashed border-white/10 rounded-full"
                 />
-                <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">
-                  HAPPY BIRTHDAY! 🎂
+                <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] px-4">
+                  {finaleText}
                 </h2>
               </div>
               
@@ -381,6 +406,16 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                   Replay
                 </button>
               </div>
+              
+              <div className="mt-4 pb-12">
+                <a 
+                  href="/"
+                  className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white/80 hover:bg-white/10 transition-all text-sm font-medium"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Create Your Own Magic Link
+                </a>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -396,9 +431,6 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
       
       {/* Footer */}
       <footer className="w-full flex flex-col items-center gap-1.5 text-white/40 text-sm font-light z-20 pb-2 md:pb-4">
-        <p>
-          Made by <span className="font-medium text-white/70">Gous Khan</span>
-        </p>
         <p className="text-xs">
           &copy; {new Date().getFullYear()} Digital Surprise Gift
         </p>
