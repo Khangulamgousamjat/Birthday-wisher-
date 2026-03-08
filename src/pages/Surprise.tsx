@@ -393,6 +393,11 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
              </div>
         </div>
       )}
+      
+      {/* Footer */}
+      <footer className="absolute bottom-4 text-white/40 text-sm font-light z-20">
+        &copy; {new Date().getFullYear()} Digital Surprise Gift. Made by <span className="font-medium text-white/60">Gous Khan</span>.
+      </footer>
     </div>
   );
 }
