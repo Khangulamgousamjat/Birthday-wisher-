@@ -191,7 +191,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
 
   return (
     <div 
-      className="relative min-h-screen w-full overflow-hidden flex flex-col items-center justify-center p-4 selection:bg-purple-500/30 touch-none"
+      className="relative min-h-screen w-full overflow-hidden flex flex-col items-center justify-between p-4 sm:p-8 selection:bg-purple-500/30 touch-none"
       onPointerDown={handlePointerDown}
     >
       
@@ -212,7 +212,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
         )}
       </AnimatePresence>
 
-      <div className="z-10 w-full max-w-4xl text-center">
+      <div className="flex-1 flex flex-col items-center justify-center z-10 w-full max-w-4xl text-center py-8">
         <AnimatePresence mode="wait">
           {scene === 0 && (
             <motion.div
@@ -395,7 +395,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
       )}
       
       {/* Footer */}
-      <footer className="absolute bottom-6 flex flex-col items-center gap-1.5 text-white/40 text-sm font-light z-20">
+      <footer className="w-full flex flex-col items-center gap-1.5 text-white/40 text-sm font-light z-20 pb-2 md:pb-4">
         <p>
           Made by <span className="font-medium text-white/70">Gous Khan</span>
         </p>

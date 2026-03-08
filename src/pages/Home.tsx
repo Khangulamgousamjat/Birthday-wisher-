@@ -37,10 +37,10 @@ export default function Home() {
   };
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center p-4 sm:p-24 overflow-hidden">
+    <main className="relative flex min-h-screen flex-col items-center justify-between p-4 sm:p-8 overflow-hidden">
       <MouseTrail />
       
-      <div className="z-10 w-full max-w-xl">
+      <div className="flex-1 flex flex-col items-center justify-center w-full max-w-xl z-10 py-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -165,7 +165,7 @@ export default function Home() {
       </div>
       
       {/* Footer */}
-      <footer className="absolute bottom-6 flex flex-col items-center gap-1.5 text-white/40 text-sm font-light z-20">
+      <footer className="w-full flex flex-col items-center gap-1.5 text-white/40 text-sm font-light z-20 pb-2 md:pb-4">
         <p>
           Made by <span className="font-medium text-white/70">Gous Khan</span>
         </p>
