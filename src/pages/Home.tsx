@@ -13,6 +13,9 @@ export default function Home() {
   const [selectedMusic, setSelectedMusic] = useState("/Happy Birthday Song.mp3");
   const [musicFile, setMusicFile] = useState<File | null>(null);
   const [musicError, setMusicError] = useState("");
+  const [imageBase64, setImageBase64] = useState("");
+  const [imageFileName, setImageFileName] = useState("");
+  const [imageError, setImageError] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedLink, setGeneratedLink] = useState("");
   const [copied, setCopied] = useState(false);
@@ -27,6 +30,60 @@ export default function Home() {
         setMusicError("");
         setMusicFile(file);
       }
+    }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        setImageError("Please upload an image file");
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 800;
+          
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+          
+          if (compressedBase64.length > 800 * 1024) { 
+            setImageError("Image is too large even after compression.");
+            setImageBase64("");
+            setImageFileName("");
+          } else {
+            setImageError("");
+            setImageBase64(compressedBase64);
+            setImageFileName(file.name);
+          }
+        };
+        img.src = event.target?.result as string;
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -49,7 +106,8 @@ export default function Home() {
         body: message,
         finaleText: finaleText.trim() || "HAPPY BIRTHDAY! 🎂",
         musicBase64: musicBase64,
-        selectedMusic: selectedMusic
+        selectedMusic: selectedMusic,
+        imageBase64: imageBase64
       };
 
       const finalMessageString = JSON.stringify(payload);
@@ -148,6 +206,23 @@ export default function Home() {
                     placeholder="HAPPY BIRTHDAY! 🎂"
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all font-medium text-sm"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center ml-1">
+                    <label htmlFor="photo" className="text-sm font-medium text-white/80">
+                      Heart Photo <span className="text-white/40">(Optional)</span>
+                    </label>
+                  </div>
+                  <input
+                    id="photo"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-pink-500/20 file:text-pink-300 hover:file:bg-pink-500/30 transition-all font-medium text-sm cursor-pointer"
+                  />
+                  {imageError && <p className="text-red-400 text-xs mt-1 ml-1">{imageError}</p>}
+                  {imageFileName && !imageError && <p className="text-green-400 text-xs mt-1 ml-1">✓ {imageFileName} attached</p>}
                 </div>
 
                 <div className="space-y-4">

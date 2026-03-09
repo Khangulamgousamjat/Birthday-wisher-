@@ -70,12 +70,14 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
   let bodyText = data.message;
   let finaleText = "HAPPY BIRTHDAY! 🎂";
   let customMusic = "";
+  let imageBase64 = "";
 
   try {
     const parsed = JSON.parse(data.message);
     if (parsed && typeof parsed === 'object') {
       bodyText = parsed.body || "";
       if (parsed.finaleText) finaleText = parsed.finaleText;
+      if (parsed.imageBase64) imageBase64 = parsed.imageBase64;
 
       if (parsed.selectedMusic && parsed.selectedMusic !== "custom") {
         customMusic = parsed.selectedMusic;
@@ -372,7 +374,18 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
               transition={{ duration: 1.5, ease: "easeOut" }}
               className="flex flex-col items-center gap-6"
             >
-              <div className="relative mb-8">
+              {imageBase64 && (
+                <motion.img
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: "spring", delay: 0.5, bounce: 0.5 }}
+                  src={imageBase64}
+                  alt="Surprise Photo"
+                  className="relative z-20 mx-auto max-w-[85vw] md:max-w-lg max-h-[40vh] md:max-h-[50vh] w-auto h-auto object-contain rounded-3xl border-2 border-white/20 drop-shadow-[0_0_25px_rgba(236,72,153,0.3)] shadow-2xl"
+                />
+              )}
+
+              <div className="relative mb-8 mt-4">
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
