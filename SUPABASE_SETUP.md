@@ -64,3 +64,10 @@ If you see an error: `new row violates row-level security policy for table "surp
    create policy "Allow public read access" on public.surprises for select using (true);
    create policy "Allow public insert access" on public.surprises for insert with check (true);
    ```
+
+3. **Definitive Fix (Disable RLS)**:
+   If the policies above still don't work, you can disable RLS entirely for this table:
+   ```sql
+   alter table public.surprises disable row level security;
+   ```
+   *Note: This will make the table publicly accessible (anyone can read/write), which is fine for this specific project.*
