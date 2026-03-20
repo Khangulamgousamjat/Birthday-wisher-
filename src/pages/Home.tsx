@@ -19,6 +19,7 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedLink, setGeneratedLink] = useState("");
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState("");
 
   const handleMusicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -110,14 +111,16 @@ export default function Home() {
         imageBase64: imageBase64
       };
 
+      setError("");
       const finalMessageString = JSON.stringify(payload);
 
       const id = await saveSurpriseData({ name, message: finalMessageString });
       if (id) {
         setGeneratedLink(`${window.location.origin}/surprise/${id}`);
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Failed to generate magic link. Please check your connection and tries.");
     } finally {
       setIsGenerating(false);
     }
@@ -282,6 +285,24 @@ export default function Home() {
                     </motion.div>
                   )}
                 </div>
+
+                {error && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium"
+                  >
+                    <p className="flex items-center gap-2">
+                       <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                       {error}
+                    </p>
+                    {error.includes("quota") && (
+                      <p className="mt-2 text-[10px] text-red-300 opacity-80 leading-relaxed">
+                        Tip: If you're on a free plan, you may have used all your storage. Try deleting old links or using a smaller audio file.
+                      </p>
+                    )}
+                  </motion.div>
+                )}
 
                 <Button 
                   type="submit" 
