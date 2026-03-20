@@ -48,3 +48,19 @@ alter table "public"."surprises" replica identity full;
 Please provide the keys in your `.env` file:
 `VITE_SUPABASE_URL=`
 `VITE_SUPABASE_ANON_KEY=`
+## 5. Troubleshooting
+
+If you see an error: `new row violates row-level security policy for table "surprises"`, it means your database permissions are not set correctly.
+
+**To fix this:**
+1. Go to the **SQL Editor** in Supabase.
+2. Run this command to reset the permissions:
+   ```sql
+   -- Drop existing policies if they exist
+   drop policy if exists "Allow public read access" on public.surprises;
+   drop policy if exists "Allow public insert access" on public.surprises;
+
+   -- Re-create policies correctly
+   create policy "Allow public read access" on public.surprises for select using (true);
+   create policy "Allow public insert access" on public.surprises for insert with check (true);
+   ```
