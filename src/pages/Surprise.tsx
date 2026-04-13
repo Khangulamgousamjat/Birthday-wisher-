@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { getSurpriseData } from "@/lib/db";
 import { motion, AnimatePresence } from "framer-motion";
-import { Music, Music4, Play, Share2, Copy, RefreshCw, CheckCircle2, Sparkles } from "lucide-react";
+import { Music, Music4, Play, Share2, Copy, RefreshCw, CheckCircle2, Sparkles, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import confetti from "canvas-confetti";
 import { supabase } from "@/lib/supabase";
 
@@ -269,16 +270,13 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
               exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
               transition={{ duration: 0.8 }}
             >
-              <button
+              <Button
                 onClick={startExperience}
-                className="group relative inline-flex items-center justify-center rounded-2xl px-10 py-5 text-lg font-medium transition-all hover:scale-105 active:scale-95 bg-white/10 border border-white/20 backdrop-blur-md hover:bg-white/20 hover:border-white/40 overflow-hidden shadow-[0_0_40px_rgba(168,85,247,0.4)]"
+                className="px-10 py-6 text-lg"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <span className="flex items-center gap-3 text-white z-10">
-                  <Play className="w-5 h-5 fill-white" />
-                  Open Your Gift
-                </span>
-              </button>
+                <Play className="w-5 h-5 fill-white" />
+                Open Your Gift
+              </Button>
             </motion.div>
           )}
 
@@ -349,12 +347,12 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                     animate={{ opacity: 1, scale: 1 }}
                     className="mt-12"
                   >
-                    <button
+                    <Button
                       onClick={() => setScene(4)}
-                      className="px-8 py-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white/90 transition-all flex items-center gap-2 mx-auto"
+                      className="mx-auto"
                     >
                       Continue Magic ✨
-                    </button>
+                    </Button>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -418,38 +416,38 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                 </h2>
               </div>
 
-              <div className="flex flex-wrap justify-center gap-4 mt-8">
-                <button
+              <div className="flex flex-wrap justify-center gap-6 mt-8">
+                <Button
                   onClick={copyLink}
-                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/20 border border-white/30 text-white hover:bg-white/30 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto justify-center font-bold shadow-lg"
+                  className="sm:w-auto"
                 >
                   {copied ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : <Copy className="w-5 h-5" />}
                   {copied ? 'Copied!' : 'Copy Link'}
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={shareLink}
-                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-purple-600/80 border border-purple-400 text-white hover:bg-purple-500 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto justify-center shadow-[0_0_20px_rgba(168,85,247,0.6)] font-bold"
+                  className="sm:w-auto"
                 >
                   <Share2 className="w-5 h-5" />
                   Share Surprise
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={replay}
-                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/20 border border-white/30 text-white hover:bg-white/30 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto justify-center font-bold shadow-lg"
+                  className="sm:w-auto"
                 >
                   <RefreshCw className="w-5 h-5" />
                   Replay
-                </button>
+                </Button>
               </div>
 
-              <div className="mt-4 pb-12">
-                <a
-                  href="/"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/20 border border-white/30 text-white hover:bg-white/30 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto justify-center font-bold shadow-lg"
+              <div className="mt-8 pb-12">
+                <Button
+                  onClick={() => navigate("/")}
+                  className="sm:w-auto px-8"
                 >
                   <Sparkles className="w-4 h-4" />
                   Create Your Own Magic Link
-                </a>
+                </Button>
               </div>
             </motion.div>
           )}

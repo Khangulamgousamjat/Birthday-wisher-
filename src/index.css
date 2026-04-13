@@ -166,4 +166,24 @@ body {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
+
+  @keyframes border-glow-translate {
+    0% { transform: translateX(-100%) translateY(-50%); }
+    100% { transform: translateX(200%) translateY(-50%); }
+  }
+
+  @keyframes border-glow-scale {
+    0% { transform: translateX(-50%) scaleX(1) scaleY(1); }
+    100% { transform: translateX(-50%) scaleX(2.5) scaleY(1.5); }
+  }
+
+  @keyframes star-rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @keyframes star-shine {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.2); }
+  }
 }
