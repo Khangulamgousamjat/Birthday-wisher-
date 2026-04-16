@@ -407,34 +407,26 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
               )}
 
               <div className="relative mb-8 mt-4">
-                {/* Crazy Animated Aura Background */}
-                <div className="absolute inset-[-60px] md:inset-[-100px] z-[-1] pointer-events-none flex items-center justify-center">
-                  <motion.div
-                    animate={{ 
-                      scale: [1, 1.2, 1],
-                      rotate: [0, 180, 360],
-                    }}
-                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                    className="absolute w-full h-full bg-gradient-to-tr from-purple-600/40 via-pink-500/20 to-yellow-500/40 rounded-full blur-3xl opacity-50 mix-blend-screen"
+                {/* Smooth Performance Aura Background */}
+                <div className="absolute inset-[-40px] md:inset-[-80px] z-[-1] pointer-events-none flex items-center justify-center">
+                  {/* Base soft glow - no blur filter, just a radial gradient! */}
+                  <div 
+                    className="absolute w-full h-full opacity-60 rounded-full"
+                    style={{ background: 'radial-gradient(circle at center, rgba(168,85,247,0.4) 0%, rgba(236,72,153,0.1) 50%, rgba(0,0,0,0) 80%)' }}
                   />
+                  {/* Smooth rotating ring */}
                   <motion.div
-                    animate={{ 
-                      scale: [1.2, 1, 1.2],
-                      rotate: [360, 180, 0],
-                    }}
-                    transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-                    className="absolute w-3/4 h-3/4 bg-gradient-to-bl from-blue-600/40 via-purple-500/20 to-pink-500/40 rounded-full blur-2xl opacity-60 mix-blend-screen"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                    style={{ willChange: "transform" }}
+                    className="absolute w-[110%] h-[110%] rounded-full border border-pink-500/20 border-t-purple-400/50 border-r-amber-400/30 shadow-[0_0_15px_rgba(236,72,153,0.2)]"
                   />
-                  {/* Rotating energy ring */}
+                  {/* Counter rotating inner ring */}
                   <motion.div
-                    animate={{ rotate: 360, scale: [1, 1.1, 1] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                    className="absolute w-[120%] h-[120%] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] border-4 border-pink-500/30 shadow-[0_0_30px_rgba(236,72,153,0.5)] border-t-purple-500/50 mix-blend-screen"
-                  />
-                  <motion.div
-                    animate={{ rotate: -360, scale: [1, 1.15, 1] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                    className="absolute w-[130%] h-[130%] rounded-[50%_40%_30%_60%/60%_40%_50%_40%] border-2 border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.4)] border-b-yellow-500/40 mix-blend-screen"
+                    animate={{ rotate: -360 }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    style={{ willChange: "transform" }}
+                    className="absolute w-[100%] h-[100%] rounded-full border border-purple-500/10 border-b-pink-400/40"
                   />
                 </div>
                 <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] px-4">
