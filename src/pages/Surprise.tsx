@@ -369,15 +369,37 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
               transition={{ duration: 1 }}
             >
               <div className="flex flex-col items-center gap-8">
-                <div className="relative">
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
-                    className="absolute inset-0 bg-pink-500/20 blur-3xl rounded-full"
-                  />
-                  <div className="w-32 h-32 md:w-48 md:h-48 rounded-full border-2 border-white/30 flex items-center justify-center backdrop-blur-sm relative z-10">
-                    <Sparkles className="w-12 h-12 md:w-20 md:h-20 text-yellow-300 animate-pulse" />
+                <div className="relative w-40 h-40 md:w-56 md:h-56 flex items-center justify-center mb-4">
+                  {/* Smooth Performance Aura Background for the icon */}
+                  <div className="absolute inset-[-20px] md:inset-[-40px] z-[-1] pointer-events-none flex items-center justify-center">
+                    <div 
+                      className="absolute w-full h-full opacity-70 rounded-full"
+                      style={{ background: 'radial-gradient(circle at center, rgba(234,179,8,0.3) 0%, rgba(236,72,153,0.15) 50%, rgba(0,0,0,0) 80%)' }}
+                    />
+                    {/* Smooth rotating outer ring */}
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+                      style={{ willChange: "transform" }}
+                      className="absolute w-[110%] h-[110%] rounded-full border border-yellow-400/30 border-t-pink-500/60 border-r-purple-500/40 shadow-[0_0_20px_rgba(234,179,8,0.3)]"
+                    />
+                    {/* Counter rotating inner dashed/glow ring */}
+                    <motion.div
+                      animate={{ rotate: -360 }}
+                      transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+                      style={{ willChange: "transform" }}
+                      className="absolute w-[95%] h-[95%] rounded-full border border-dashed border-pink-400/30 border-b-yellow-400/60"
+                    />
                   </div>
+                  
+                  {/* The Sparkles */}
+                  <motion.div
+                    animate={{ scale: [1, 1.15, 1], rotate: [0, 5, -5, 0] }}
+                    transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                    className="relative z-10 flex items-center justify-center p-6 bg-black/20 rounded-full backdrop-blur-sm border border-white/5"
+                  >
+                    <Sparkles className="w-16 h-16 md:w-20 md:h-20 text-yellow-300 drop-shadow-[0_0_15px_rgba(234,179,8,0.8)]" />
+                  </motion.div>
                 </div>
                 <h2 className="text-3xl md:text-4xl font-light text-white/80 tracking-widest uppercase">
                   Tap or click for magic
