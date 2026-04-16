@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { getSurpriseData } from "@/lib/db";
 import { motion, AnimatePresence } from "framer-motion";
-import { Music, Music4, Play, Share2, Copy, RefreshCw, CheckCircle2, Sparkles, ArrowRight } from "lucide-react";
+import { Music, Music4, Play, Share2, Copy, RefreshCw, CheckCircle2, Sparkles, ArrowRight, Heart } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import confetti from "canvas-confetti";
 import { supabase } from "@/lib/supabase";
@@ -392,13 +392,13 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                     />
                   </div>
                   
-                  {/* The Sparkles */}
+                  {/* The Beating Neon Heart */}
                   <motion.div
-                    animate={{ scale: [1, 1.15, 1], rotate: [0, 5, -5, 0] }}
-                    transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                    className="relative z-10 flex items-center justify-center p-6 bg-black/20 rounded-full backdrop-blur-sm border border-white/5"
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+                    className="relative z-10 flex items-center justify-center p-6 bg-pink-500/10 rounded-full backdrop-blur-md border border-pink-500/30 shadow-[0_0_30px_rgba(236,72,153,0.3)]"
                   >
-                    <Sparkles className="w-16 h-16 md:w-20 md:h-20 text-yellow-300 drop-shadow-[0_0_15px_rgba(234,179,8,0.8)]" />
+                    <Heart className="w-16 h-16 md:w-20 md:h-20 text-pink-500 fill-pink-500/80 drop-shadow-[0_0_15px_rgba(236,72,153,0.8)]" />
                   </motion.div>
                 </div>
                 <h2 className="text-3xl md:text-4xl font-light text-white/80 tracking-widest uppercase">
