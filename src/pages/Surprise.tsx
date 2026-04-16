@@ -454,13 +454,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
         </AnimatePresence>
       </div>
 
-      {scene === 5 && (
-        <div className="fixed inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
-          <div className="text-white/5 text-8xl md:text-[20rem] font-black select-none z-[-1]">
-            MAGIC
-          </div>
-        </div>
-      )}
+
 
       {/* Footer */}
       <footer className="w-full flex flex-col items-center gap-1.5 text-white/40 text-sm font-light z-20 pb-2 md:pb-4">
