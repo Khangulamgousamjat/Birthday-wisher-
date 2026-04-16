@@ -350,9 +350,9 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                   >
                     <Button
                       onClick={() => setScene(4)}
-                      className="mx-auto"
+                      className="mx-auto text-lg px-10 py-4 shadow-xl shadow-pink-500/10"
                     >
-                      Continue Magic ✨
+                      Continue Magic
                     </Button>
                   </motion.div>
                 )}
