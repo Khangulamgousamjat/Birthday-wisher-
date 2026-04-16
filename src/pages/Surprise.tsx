@@ -69,6 +69,7 @@ export default function Surprise() {
 }
 
 function ExperienceClient({ data }: { data: ExperienceData }) {
+  const navigate = useNavigate();
   const [scene, setScene] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
