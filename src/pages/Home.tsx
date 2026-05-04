@@ -3,7 +3,7 @@ import SpotlightCard from "@/components/SpotlightCard";
 import { Button } from "@/components/ui/Button";
 import { MouseTrail } from "@/components/effects/MouseTrail";
 import { motion } from "framer-motion";
-import { Copy, Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Copy, Sparkles, ArrowRight, CheckCircle2, Play, Pause, Music } from "lucide-react";
 import { saveSurpriseData } from "@/lib/db";
 
 export default function Home() {
@@ -20,6 +20,17 @@ export default function Home() {
   const [generatedLink, setGeneratedLink] = useState("");
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
+  const [isPlayingPreview, setIsPlayingPreview] = useState(false);
+  const [audioPreview] = useState(typeof Audio !== 'undefined' ? new Audio() : null);
+
+  useEffect(() => {
+    return () => {
+      if (audioPreview) {
+        audioPreview.pause();
+        audioPreview.src = "";
+      }
+    };
+  }, [audioPreview]);
 
   const handleMusicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -30,6 +41,11 @@ export default function Home() {
       } else {
         setMusicError("");
         setMusicFile(file);
+        // Stop any playing preview when a new file is uploaded
+        if (audioPreview) {
+          audioPreview.pause();
+          setIsPlayingPreview(false);
+        }
       }
     }
   };
@@ -143,6 +159,37 @@ export default function Home() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const togglePreview = () => {
+    if (!audioPreview) return;
+
+    if (isPlayingPreview) {
+      audioPreview.pause();
+      setIsPlayingPreview(false);
+    } else {
+      if (selectedMusic === "none") return;
+      
+      let source = selectedMusic;
+      if (selectedMusic === "custom") {
+        if (!musicFile) {
+          setMusicError("Please upload a song first to preview it");
+          return;
+        }
+        source = URL.createObjectURL(musicFile);
+      }
+      
+      audioPreview.src = source;
+      audioPreview.play().catch(err => {
+        console.error("Playback failed:", err);
+        setMusicError("Failed to play preview. Please try another song.");
+      });
+      setIsPlayingPreview(true);
+      
+      audioPreview.onended = () => {
+        setIsPlayingPreview(false);
+      };
+    }
+  };
+
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-between p-4 sm:p-8 overflow-hidden">
       <MouseTrail />
@@ -244,32 +291,56 @@ export default function Home() {
                     <label className="text-sm font-medium text-white/80 ml-1">
                       Background Music <span className="text-white/40">(Optional)</span>
                     </label>
-                    <div className="relative">
-                      <select 
-                        value={selectedMusic}
-                        onChange={(e) => {
-                          setSelectedMusic(e.target.value);
-                          if (e.target.value !== "custom") {
-                            setMusicFile(null);
-                            setMusicError("");
-                          }
-                        }}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all text-sm cursor-pointer"
-                      >
-                        <option value="/Happy Birthday Song.mp3" className="bg-gray-900">Default - Happy Birthday 🎂</option>
-                        <option value="/happy birthday slowed.mp3" className="bg-gray-900">Happy Birthday (Slowed) 🎂</option>
-                        <option value="/anniversary.mp3" className="bg-gray-900">Anniversary 💍</option>
-                        <option value="/happy christmas.mp3" className="bg-gray-900">Happy Christmas 🎄</option>
-                        <option value="/romantic.mp3" className="bg-gray-900">Romantic ❤️</option>
-                        <option value="/pianocafe.mp3" className="bg-gray-900">Piano Cafe 🎹</option>
-                        <option value="/funky groovin.mp3" className="bg-gray-900">Funky Groovin 🕺</option>
-                        <option value="/playhouse.mp3" className="bg-gray-900">Playhouse 🎮</option>
-                        <option value="none" className="bg-gray-900">No Background Music 🔇</option>
-                        <option value="custom" className="bg-gray-900 font-bold text-purple-400">Upload Your Own Song 🎵</option>
-                      </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-white/50">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <select 
+                          value={selectedMusic}
+                          onChange={(e) => {
+                            setSelectedMusic(e.target.value);
+                            if (audioPreview) {
+                              audioPreview.pause();
+                              setIsPlayingPreview(false);
+                            }
+                            if (e.target.value !== "custom") {
+                              setMusicFile(null);
+                              setMusicError("");
+                            }
+                          }}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all text-sm cursor-pointer pr-10"
+                        >
+                          <option value="/Happy Birthday Song.mp3" className="bg-gray-900">Default - Happy Birthday 🎂</option>
+                          <option value="/happy birthday slowed.mp3" className="bg-gray-900">Happy Birthday (Slowed) 🎂</option>
+                          <option value="/anniversary.mp3" className="bg-gray-900">Anniversary 💍</option>
+                          <option value="/happy christmas.mp3" className="bg-gray-900">Happy Christmas 🎄</option>
+                          <option value="/romantic.mp3" className="bg-gray-900">Romantic ❤️</option>
+                          <option value="/pianocafe.mp3" className="bg-gray-900">Piano Cafe 🎹</option>
+                          <option value="/funky groovin.mp3" className="bg-gray-900">Funky Groovin 🕺</option>
+                          <option value="/playhouse.mp3" className="bg-gray-900">Playhouse 🎮</option>
+                          <option value="none" className="bg-gray-900">No Background Music 🔇</option>
+                          <option value="custom" className="bg-gray-900 font-bold text-purple-400">Upload Your Own Song 🎵</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-white/50">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
                       </div>
+                      
+                      <button
+                        type="button"
+                        onClick={togglePreview}
+                        disabled={selectedMusic === "none" || (selectedMusic === "custom" && !musicFile)}
+                        className={`flex items-center justify-center w-12 h-12 rounded-xl transition-all border ${
+                          isPlayingPreview 
+                            ? "bg-purple-500/20 border-purple-500/50 text-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.3)]" 
+                            : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20"
+                        } disabled:opacity-30 disabled:cursor-not-allowed`}
+                        title={isPlayingPreview ? "Pause Preview" : "Play Preview"}
+                      >
+                        {isPlayingPreview ? (
+                          <Pause className="h-5 w-5 animate-pulse" />
+                        ) : (
+                          <Play className="h-5 w-5 ml-0.5" />
+                        )}
+                      </button>
                     </div>
                   </div>
 
