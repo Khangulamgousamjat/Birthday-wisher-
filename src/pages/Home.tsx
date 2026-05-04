@@ -24,13 +24,52 @@ export default function Home() {
   const [audioPreview] = useState(typeof Audio !== 'undefined' ? new Audio() : null);
 
   useEffect(() => {
+    if (!audioPreview) return;
+    
+    const handleEnded = () => setIsPlayingPreview(false);
+    audioPreview.addEventListener('ended', handleEnded);
+    
     return () => {
-      if (audioPreview) {
-        audioPreview.pause();
-        audioPreview.src = "";
-      }
+      audioPreview.removeEventListener('ended', handleEnded);
+      audioPreview.pause();
+      audioPreview.src = "";
     };
   }, [audioPreview]);
+
+  // Sync audio source with selection
+  useEffect(() => {
+    if (!audioPreview) return;
+    
+    audioPreview.pause();
+    setIsPlayingPreview(false);
+    
+    let source = "";
+    let isBlob = false;
+
+    if (selectedMusic === "none") {
+      source = "";
+    } else if (selectedMusic === "custom") {
+      if (musicFile) {
+        source = URL.createObjectURL(musicFile);
+        isBlob = true;
+      }
+    } else {
+      source = selectedMusic;
+    }
+    
+    if (source) {
+      audioPreview.src = source;
+      audioPreview.load();
+    } else {
+      audioPreview.src = "";
+    }
+    
+    return () => {
+      if (isBlob && source) {
+        URL.revokeObjectURL(source);
+      }
+    };
+  }, [selectedMusic, musicFile, audioPreview]);
 
   const handleMusicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -41,11 +80,6 @@ export default function Home() {
       } else {
         setMusicError("");
         setMusicFile(file);
-        // Stop any playing preview when a new file is uploaded
-        if (audioPreview) {
-          audioPreview.pause();
-          setIsPlayingPreview(false);
-        }
       }
     }
   };
@@ -160,33 +194,22 @@ export default function Home() {
   };
 
   const togglePreview = () => {
-    if (!audioPreview) return;
+    if (!audioPreview || !audioPreview.src || audioPreview.src.endsWith("none")) {
+      if (selectedMusic === "custom" && !musicFile) {
+        setMusicError("Please upload a song first to preview it");
+      }
+      return;
+    }
 
     if (isPlayingPreview) {
       audioPreview.pause();
       setIsPlayingPreview(false);
     } else {
-      if (selectedMusic === "none") return;
-      
-      let source = selectedMusic;
-      if (selectedMusic === "custom") {
-        if (!musicFile) {
-          setMusicError("Please upload a song first to preview it");
-          return;
-        }
-        source = URL.createObjectURL(musicFile);
-      }
-      
-      audioPreview.src = source;
       audioPreview.play().catch(err => {
         console.error("Playback failed:", err);
-        setMusicError("Failed to play preview. Please try another song.");
+        setMusicError("Failed to play preview. Please check your connection or try another song.");
       });
       setIsPlayingPreview(true);
-      
-      audioPreview.onended = () => {
-        setIsPlayingPreview(false);
-      };
     }
   };
 
@@ -297,10 +320,6 @@ export default function Home() {
                           value={selectedMusic}
                           onChange={(e) => {
                             setSelectedMusic(e.target.value);
-                            if (audioPreview) {
-                              audioPreview.pause();
-                              setIsPlayingPreview(false);
-                            }
                             if (e.target.value !== "custom") {
                               setMusicFile(null);
                               setMusicError("");
