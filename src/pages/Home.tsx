@@ -167,10 +167,9 @@ export default function Home() {
     if (!audioRef.current) return;
     
     const audio = audioRef.current;
-    audio.pause();
     
     if (!source || source === "none") {
-      setIsPlayingPreview(false);
+      audio.pause();
       return;
     }
 
@@ -185,17 +184,15 @@ export default function Home() {
       lastBlobUrl.current = actualSource;
     }
 
-    // Encode URI to handle spaces in filenames correctly
     const encodedSource = actualSource.startsWith('blob:') ? actualSource : encodeURI(actualSource);
 
     try {
-      audio.src = encodedSource;
-      audio.load();
-      audio.play().then(() => {
-        setIsPlayingPreview(true);
-      }).catch(err => {
-        console.error("Playback failed:", err);
-        setIsPlayingPreview(false);
+      if (audio.src !== window.location.origin + encodedSource && audio.src !== encodedSource) {
+        audio.src = encodedSource;
+        audio.load();
+      }
+      audio.play().catch(err => {
+        console.error("Playback blocked or failed:", err);
       });
     } catch (err) {
       console.error("Audio error:", err);
@@ -203,9 +200,10 @@ export default function Home() {
   };
 
   const togglePreview = () => {
-    if (isPlayingPreview) {
-      audioRef.current?.pause();
-      setIsPlayingPreview(false);
+    if (!audioRef.current) return;
+    
+    if (!audioRef.current.paused) {
+      audioRef.current.pause();
     } else {
       playSong(selectedMusic);
     }
@@ -505,7 +503,9 @@ export default function Home() {
       {/* Hidden Audio Player for Preview */}
       <audio 
         ref={audioRef} 
-        onEnded={() => setIsPlayingPreview(false)} 
+        onPlay={() => setIsPlayingPreview(true)}
+        onPause={() => setIsPlayingPreview(false)}
+        onEnded={() => setIsPlayingPreview(false)}
         className="hidden" 
         preload="auto"
       />
