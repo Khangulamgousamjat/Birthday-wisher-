@@ -22,47 +22,28 @@ export default function Home() {
   const [error, setError] = useState("");
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const lastBlobUrl = useRef<string | null>(null);
 
-  // Sync audio source with selection
+  // Cleanup on unmount
   useEffect(() => {
-    // Cleanup previous audio
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = "";
-    }
-    setIsPlayingPreview(false);
-
-    if (selectedMusic === "none") return;
-    
-    let source = "";
-    let isBlob = false;
-    
-    if (selectedMusic === "custom") {
-      if (musicFile) {
-        source = URL.createObjectURL(musicFile);
-        isBlob = true;
-      }
-    } else {
-      source = selectedMusic;
-    }
-
-    if (source) {
-      const audio = new Audio(source);
-      audio.addEventListener('ended', () => setIsPlayingPreview(false));
-      audioRef.current = audio;
-    }
-
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.src = "";
-        audioRef.current = null;
       }
-      if (isBlob && source) {
-        URL.revokeObjectURL(source);
+      if (lastBlobUrl.current) {
+        URL.revokeObjectURL(lastBlobUrl.current);
       }
     };
-  }, [selectedMusic, musicFile]);
+  }, []);
+
+  // Stop preview if selection changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      setIsPlayingPreview(false);
+    }
+  }, [selectedMusic]);
 
   const handleMusicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -187,22 +168,50 @@ export default function Home() {
   };
 
   const togglePreview = () => {
-    if (!audioRef.current) {
-      if (selectedMusic === "custom" && !musicFile) {
-        setMusicError("Please upload a song first to preview it");
-      }
+    if (isPlayingPreview) {
+      audioRef.current?.pause();
+      setIsPlayingPreview(false);
       return;
     }
 
-    if (isPlayingPreview) {
+    if (selectedMusic === "none") return;
+
+    // Stop and cleanup previous
+    if (audioRef.current) {
       audioRef.current.pause();
-      setIsPlayingPreview(false);
-    } else {
-      audioRef.current.play().catch(err => {
+      audioRef.current.src = "";
+    }
+
+    let source = selectedMusic;
+    if (selectedMusic === "custom") {
+      if (!musicFile) {
+        setMusicError("Please upload a song first to preview it");
+        return;
+      }
+      
+      // Cleanup previous blob URL if any
+      if (lastBlobUrl.current) {
+        URL.revokeObjectURL(lastBlobUrl.current);
+      }
+      
+      source = URL.createObjectURL(musicFile);
+      lastBlobUrl.current = source;
+    }
+
+    try {
+      const audio = new Audio(source);
+      audio.onended = () => setIsPlayingPreview(false);
+      audioRef.current = audio;
+      
+      audio.play().catch(err => {
         console.error("Playback failed:", err);
         setMusicError("Failed to play preview. Please check your connection or try another song.");
+        setIsPlayingPreview(false);
       });
       setIsPlayingPreview(true);
+    } catch (err) {
+      console.error("Audio creation failed:", err);
+      setMusicError("Audio player error. Please try again.");
     }
   };
 
