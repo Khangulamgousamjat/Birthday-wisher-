@@ -167,51 +167,54 @@ export default function Home() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const togglePreview = () => {
-    if (isPlayingPreview) {
-      audioRef.current?.pause();
+  const playSong = (source: string) => {
+    if (!source || source === "none") {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+      }
       setIsPlayingPreview(false);
       return;
     }
 
-    if (selectedMusic === "none") return;
+    if (source === "custom" && !musicFile) {
+      return;
+    }
 
-    // Stop and cleanup previous
+    // Stop current
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.src = "";
     }
 
-    let source = selectedMusic;
-    if (selectedMusic === "custom") {
-      if (!musicFile) {
-        setMusicError("Please upload a song first to preview it");
-        return;
-      }
-      
-      // Cleanup previous blob URL if any
-      if (lastBlobUrl.current) {
-        URL.revokeObjectURL(lastBlobUrl.current);
-      }
-      
-      source = URL.createObjectURL(musicFile);
-      lastBlobUrl.current = source;
+    let actualSource = source;
+    if (source === "custom" && musicFile) {
+      if (lastBlobUrl.current) URL.revokeObjectURL(lastBlobUrl.current);
+      actualSource = URL.createObjectURL(musicFile);
+      lastBlobUrl.current = actualSource;
     }
 
     try {
-      const audio = new Audio(source);
+      const audio = new Audio(actualSource);
       audio.onended = () => setIsPlayingPreview(false);
       audioRef.current = audio;
       
       audio.play().catch(err => {
         console.error("Playback failed:", err);
-        setMusicError("Failed to play preview. Please check your connection or try another song.");
         setIsPlayingPreview(false);
       });
       setIsPlayingPreview(true);
     } catch (err) {
       console.error("Audio creation failed:", err);
-      setMusicError("Audio player error. Please try again.");
+    }
+  };
+
+  const togglePreview = () => {
+    if (isPlayingPreview) {
+      audioRef.current?.pause();
+      setIsPlayingPreview(false);
+    } else {
+      playSong(selectedMusic);
     }
   };
 
@@ -321,10 +324,12 @@ export default function Home() {
                         <select 
                           value={selectedMusic}
                           onChange={(e) => {
-                            setSelectedMusic(e.target.value);
-                            if (e.target.value !== "custom") {
+                            const val = e.target.value;
+                            setSelectedMusic(val);
+                            if (val !== "custom") {
                               setMusicFile(null);
                               setMusicError("");
+                              playSong(val); // Auto-play on change
                             }
                           }}
                           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all text-sm cursor-pointer pr-10"
