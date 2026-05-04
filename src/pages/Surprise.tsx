@@ -163,6 +163,16 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
     return () => clearTimeout(timer);
   }, [scene, bodyText.length]);
 
+  // Auto-scroll as text types
+  useEffect(() => {
+    if (scene === 3) {
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  }, [scene, bodyText.length, showContinue]);
+
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined;
     if (scene === 4) {
@@ -242,8 +252,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
 
   return (
     <div
-      className="relative min-h-screen w-full overflow-hidden flex flex-col items-center justify-between p-4 sm:p-8 selection:bg-purple-500/30 touch-none"
-      onPointerDown={handlePointerDown}
+      className="relative min-h-screen w-full overflow-x-hidden flex flex-col items-center justify-between p-4 sm:p-8 selection:bg-purple-500/30"
     >
 
       <AnimatePresence>
@@ -367,6 +376,8 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, filter: "blur(20px)" }}
               transition={{ duration: 1 }}
+              onPointerDown={handlePointerDown}
+              className="cursor-pointer py-12"
             >
               <div className="flex flex-col items-center gap-8">
                 <div className="relative w-40 h-40 md:w-56 md:h-56 flex items-center justify-center mb-4">
