@@ -27,10 +27,6 @@ export default function Home() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = "";
-      }
       if (lastBlobUrl.current) {
         URL.revokeObjectURL(lastBlobUrl.current);
       }
@@ -39,7 +35,7 @@ export default function Home() {
 
   // Stop preview if selection changes
   useEffect(() => {
-    if (audioRef.current) {
+    if (audioRef.current && !audioRef.current.paused) {
       audioRef.current.pause();
       setIsPlayingPreview(false);
     }
@@ -168,23 +164,18 @@ export default function Home() {
   };
 
   const playSong = (source: string) => {
+    if (!audioRef.current) return;
+    
+    const audio = audioRef.current;
+    audio.pause();
+    
     if (!source || source === "none") {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = "";
-      }
       setIsPlayingPreview(false);
       return;
     }
 
     if (source === "custom" && !musicFile) {
       return;
-    }
-
-    // Stop current
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = "";
     }
 
     let actualSource = source;
@@ -194,18 +185,20 @@ export default function Home() {
       lastBlobUrl.current = actualSource;
     }
 
+    // Encode URI to handle spaces in filenames correctly
+    const encodedSource = actualSource.startsWith('blob:') ? actualSource : encodeURI(actualSource);
+
     try {
-      const audio = new Audio(actualSource);
-      audio.onended = () => setIsPlayingPreview(false);
-      audioRef.current = audio;
-      
-      audio.play().catch(err => {
+      audio.src = encodedSource;
+      audio.load();
+      audio.play().then(() => {
+        setIsPlayingPreview(true);
+      }).catch(err => {
         console.error("Playback failed:", err);
         setIsPlayingPreview(false);
       });
-      setIsPlayingPreview(true);
     } catch (err) {
-      console.error("Audio creation failed:", err);
+      console.error("Audio error:", err);
     }
   };
 
@@ -508,6 +501,14 @@ export default function Home() {
           </a>
         </div>
       </footer>
+
+      {/* Hidden Audio Player for Preview */}
+      <audio 
+        ref={audioRef} 
+        onEnded={() => setIsPlayingPreview(false)} 
+        className="hidden" 
+        preload="auto"
+      />
     </main>
   );
 }
