@@ -360,20 +360,33 @@ export default function Home() {
                   </button>
                 </div>
                 
-                <div className="flex gap-4 pt-4">
+                <div className="flex flex-col sm:flex-row gap-4 pt-4">
                   <Button 
                     variant="outline" 
-                    onClick={() => { setGeneratedLink(""); setName(""); setMessage(""); }}
+                    onClick={() => { 
+                      setGeneratedLink(""); 
+                      setName(""); 
+                      setMessage(""); 
+                      setImageBase64("");
+                      setImageFileName("");
+                      setMusicFile(null);
+                      setMusicError("");
+                      setError("");
+                    }}
                     className="w-full"
                   >
                     Create Another
                   </Button>
-                  <Button 
-                    onClick={() => window.open(generatedLink, '_blank')}
+                  <a 
+                    href={generatedLink} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
                     className="w-full"
                   >
-                    Preview
-                  </Button>
+                    <Button className="w-full">
+                      Preview
+                    </Button>
+                  </a>
                 </div>
               </motion.div>
             )}
