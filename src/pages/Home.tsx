@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SpotlightCard from "@/components/SpotlightCard";
 import { Button } from "@/components/ui/Button";
 import { MouseTrail } from "@/components/effects/MouseTrail";
