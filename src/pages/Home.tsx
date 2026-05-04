@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import SpotlightCard from "@/components/SpotlightCard";
 import { Button } from "@/components/ui/Button";
 import { MouseTrail } from "@/components/effects/MouseTrail";
@@ -21,34 +21,23 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
-  const [audioPreview] = useState(typeof Audio !== 'undefined' ? new Audio() : null);
-
-  useEffect(() => {
-    if (!audioPreview) return;
-    
-    const handleEnded = () => setIsPlayingPreview(false);
-    audioPreview.addEventListener('ended', handleEnded);
-    
-    return () => {
-      audioPreview.removeEventListener('ended', handleEnded);
-      audioPreview.pause();
-      audioPreview.src = "";
-    };
-  }, [audioPreview]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Sync audio source with selection
   useEffect(() => {
-    if (!audioPreview) return;
-    
-    audioPreview.pause();
+    // Cleanup previous audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = "";
+    }
     setIsPlayingPreview(false);
+
+    if (selectedMusic === "none") return;
     
     let source = "";
     let isBlob = false;
-
-    if (selectedMusic === "none") {
-      source = "";
-    } else if (selectedMusic === "custom") {
+    
+    if (selectedMusic === "custom") {
       if (musicFile) {
         source = URL.createObjectURL(musicFile);
         isBlob = true;
@@ -56,20 +45,24 @@ export default function Home() {
     } else {
       source = selectedMusic;
     }
-    
+
     if (source) {
-      audioPreview.src = source;
-      audioPreview.load();
-    } else {
-      audioPreview.src = "";
+      const audio = new Audio(source);
+      audio.addEventListener('ended', () => setIsPlayingPreview(false));
+      audioRef.current = audio;
     }
-    
+
     return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+        audioRef.current = null;
+      }
       if (isBlob && source) {
         URL.revokeObjectURL(source);
       }
     };
-  }, [selectedMusic, musicFile, audioPreview]);
+  }, [selectedMusic, musicFile]);
 
   const handleMusicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -194,7 +187,7 @@ export default function Home() {
   };
 
   const togglePreview = () => {
-    if (!audioPreview || !audioPreview.src || audioPreview.src.endsWith("none")) {
+    if (!audioRef.current) {
       if (selectedMusic === "custom" && !musicFile) {
         setMusicError("Please upload a song first to preview it");
       }
@@ -202,10 +195,10 @@ export default function Home() {
     }
 
     if (isPlayingPreview) {
-      audioPreview.pause();
+      audioRef.current.pause();
       setIsPlayingPreview(false);
     } else {
-      audioPreview.play().catch(err => {
+      audioRef.current.play().catch(err => {
         console.error("Playback failed:", err);
         setMusicError("Failed to play preview. Please check your connection or try another song.");
       });
