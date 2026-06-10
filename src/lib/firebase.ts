@@ -3,13 +3,13 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCF6vx1NR69l40D4WmMZ5SnXEjILt9sU5g",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "birthday-wisher-aa20e.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "birthday-wisher-aa20e",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "birthday-wisher-aa20e.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "1039597509897",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:1039597509897:web:91664f18cc3783ab0047d8",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-TS4VX7GZ3S",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase

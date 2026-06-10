@@ -33,6 +33,38 @@ export default function Home() {
     };
   }, []);
 
+  const [loadingText, setLoadingText] = useState("Brewing Magic...");
+
+  const funnyLines = [
+    "Brewing Magic...",
+    "Dividing 0 by eternity...",
+    "Consulting the birthday wizards...",
+    "Compressing pixels to pure love...",
+    "Calculating optimal hype levels...",
+    "Polishing the sparkles...",
+    "Injecting cake calories into the link...",
+    "Stretching the time continuum...",
+    "Untangling the confetti strings...",
+    "Adding a pinch of stardust...",
+    "Baking the digital cake...",
+    "Making sure it is 100% magical..."
+  ];
+
+  useEffect(() => {
+    if (!isGenerating) {
+      setLoadingText(funnyLines[0]);
+      return;
+    }
+
+    let currentIndex = 0;
+    const interval = setInterval(() => {
+      currentIndex = (currentIndex + 1) % funnyLines.length;
+      setLoadingText(funnyLines[currentIndex]);
+    }, 1500);
+
+    return () => clearInterval(interval);
+  }, [isGenerating]);
+
   // Stop preview if selection changes
   useEffect(() => {
     if (audioRef.current && !audioRef.current.paused) {
@@ -404,7 +436,7 @@ export default function Home() {
                   {isGenerating ? (
                     <span className="flex items-center space-x-2">
                       <Sparkles className="animate-spin h-5 w-5" />
-                      <span>Brewing Magic...</span>
+                      <span>{loadingText}</span>
                     </span>
                   ) : (
                     <span className="flex items-center space-x-2">
