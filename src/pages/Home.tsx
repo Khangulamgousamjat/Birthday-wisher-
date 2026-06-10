@@ -70,8 +70,8 @@ export default function Home() {
           let width = img.width;
           let height = img.height;
           
-          const MAX_WIDTH = 800;
-          const MAX_HEIGHT = 800;
+          const MAX_WIDTH = 600;
+          const MAX_HEIGHT = 600;
           
           if (width > height) {
             if (width > MAX_WIDTH) {
@@ -90,9 +90,9 @@ export default function Home() {
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
           
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
           
-          if (compressedBase64.length > 800 * 1024) { 
+          if (compressedBase64.length > 700 * 1024) { 
             setImageError("Image is too large even after compression.");
             setImageBase64("");
             setImageFileName("");
@@ -133,17 +133,10 @@ export default function Home() {
       setError("");
       const finalMessageString = JSON.stringify(payload);
 
-      // Convert compressed base64 back to Blob for storage upload
-      let imageBlob = null;
-      if (imageBase64) {
-        const response = await fetch(imageBase64);
-        imageBlob = await response.blob();
-      }
-
       const id = await saveSurpriseData({ 
         name, 
         message: finalMessageString,
-        imageFile: imageBlob,
+        imageBase64: imageBase64 || null,
         musicFile: musicFile
       });
       if (id) {

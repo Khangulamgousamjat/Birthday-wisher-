@@ -77,23 +77,16 @@ export async function getSurpriseData(short_id: string): Promise<SurpriseData | 
 export async function saveSurpriseData(record: { 
   name: string, 
   message: string, 
-  imageFile?: File | Blob | null,
+  imageBase64?: string | null,
   musicFile?: File | null 
 }): Promise<string> {
   const short_id = Math.random().toString(36).substring(2, 10);
   
   try {
-    let image_path = undefined;
+    let image_path = record.imageBase64 || undefined;
     let music_path = undefined;
 
-    // 1. Upload Image if exists
-    if (record.imageFile) {
-      const ext = record.imageFile instanceof File ? record.imageFile.name.split('.').pop() : 'jpg';
-      const fileName = `${short_id}_image.${ext}`;
-      image_path = await uploadFile(record.imageFile, fileName) || undefined;
-    }
-
-    // 2. Upload Music if exists
+    // 1. Upload Music if exists
     if (record.musicFile) {
       const ext = record.musicFile.name.split('.').pop() || 'mp3';
       const fileName = `${short_id}_music.${ext}`;
