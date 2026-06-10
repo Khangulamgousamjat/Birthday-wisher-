@@ -3,9 +3,9 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { getSurpriseData } from "@/lib/db";
 import { motion, AnimatePresence } from "framer-motion";
 import { Music, Music4, Play, Share2, Copy, RefreshCw, CheckCircle2, Sparkles, ArrowRight, Heart } from "lucide-react";
+// Import components and assets
 import { Button } from "@/components/ui/Button";
 import confetti from "canvas-confetti";
-import { supabase } from "@/lib/supabase";
 
 interface ExperienceData {
   name: string;
@@ -82,15 +82,13 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
   let customMusic = "";
   let imageBase64 = "";
 
-  // 1. Get URLs from Storage if paths exist
+  // 1. Get URLs directly if they exist (stored as download URLs in Firebase)
   if (data.image_path) {
-    const { data: imgData } = supabase.storage.from('surprises').getPublicUrl(data.image_path);
-    imageBase64 = imgData.publicUrl;
+    imageBase64 = data.image_path;
   }
 
   if (data.music_path) {
-    const { data: musicData } = supabase.storage.from('surprises').getPublicUrl(data.music_path);
-    customMusic = musicData.publicUrl;
+    customMusic = data.music_path;
   }
 
   // 2. Fallback to JSON-embedded data (for older links)
