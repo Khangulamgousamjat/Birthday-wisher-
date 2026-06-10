@@ -12,10 +12,29 @@ export type SurpriseData = {
   created_at: string;
 };
 
+// Helper function to enforce a timeout on asynchronous tasks
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, errorMessage: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) => 
+      setTimeout(() => reject(new Error(errorMessage)), timeoutMs)
+    )
+  ]);
+}
+
 async function uploadFile(file: File | Blob, path: string): Promise<string | null> {
   try {
     const storageRef = ref(storage, `surprises/${path}`);
-    const snapshot = await uploadBytes(storageRef, file);
+    console.log(`Uploading file to: surprises/${path}`);
+    
+    // Set a 15-second timeout for the file upload
+    const snapshot = await withTimeout(
+      uploadBytes(storageRef, file), 
+      15000, 
+      "File upload timed out. Please check your Firebase Storage setup and connection."
+    );
+    
+    console.log("File uploaded successfully, retrieving download URL...");
     const downloadURL = await getDownloadURL(snapshot.ref);
     return downloadURL;
   } catch (error: any) {
@@ -27,7 +46,13 @@ async function uploadFile(file: File | Blob, path: string): Promise<string | nul
 export async function getSurpriseData(short_id: string): Promise<SurpriseData | null> {
   try {
     const docRef = doc(db, 'surprises', short_id);
-    const docSnap = await getDoc(docRef);
+    
+    // Set a 10-second timeout for reading Firestore
+    const docSnap = await withTimeout(
+      getDoc(docRef),
+      10000,
+      "Reading database timed out. Please check your Firebase connection."
+    );
 
     if (!docSnap.exists()) {
       return null;
@@ -76,15 +101,21 @@ export async function saveSurpriseData(record: {
     }
 
     // 3. Save surprise details in Firestore surprises collection
-    await setDoc(doc(db, 'surprises', short_id), {
-      short_id,
-      name: record.name,
-      message: record.message,
-      image_path: image_path || null,
-      music_path: music_path || null,
-      created_at: new Date().toISOString()
-    });
+    console.log("Writing document to Firestore surprises collection...");
+    await withTimeout(
+      setDoc(doc(db, 'surprises', short_id), {
+        short_id,
+        name: record.name,
+        message: record.message,
+        image_path: image_path || null,
+        music_path: music_path || null,
+        created_at: new Date().toISOString()
+      }),
+      10000,
+      "Database save timed out. Please check your Firestore database setup and internet connection."
+    );
   
+    console.log("Document saved successfully with ID:", short_id);
     return short_id;
   } catch (err: any) {
     console.error("Failed to save surprise data to Firestore:", err);
