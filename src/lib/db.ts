@@ -1,5 +1,5 @@
 import { db, storage } from './firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export type SurpriseData = {
@@ -59,6 +59,18 @@ export async function getSurpriseData(short_id: string): Promise<SurpriseData | 
     }
 
     const data = docSnap.data();
+
+    // 48-Hour Auto-Expiration Check
+    if (data.created_at) {
+      const createdTime = new Date(data.created_at).getTime();
+      const now = Date.now();
+      const fortyEightHoursMs = 48 * 60 * 60 * 1000;
+      if (now - createdTime > fortyEightHoursMs) {
+        console.log(`Document ${short_id} has expired (created > 48h ago). Deleting...`);
+        deleteDoc(docRef).catch((err) => console.error("Error deleting expired document:", err));
+        return null;
+      }
+    }
     return {
       id: docSnap.id,
       short_id: data.short_id,

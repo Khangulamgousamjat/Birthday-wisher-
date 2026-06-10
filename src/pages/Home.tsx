@@ -262,7 +262,7 @@ export default function Home() {
            animate={{ opacity: 1, scale: 1 }}
            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
         >
-          <SpotlightCard className="p-8 md:p-10 border-white/10 !bg-black/40 relative group">
+          <SpotlightCard className="p-8 md:p-10 premium-glass-card relative group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
             
             {!generatedLink ? (
