@@ -1,13 +1,13 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export function MouseTrail() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const trailRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+      if (trailRef.current) {
+        trailRef.current.style.background = `radial-gradient(600px circle at ${e.clientX}px ${e.clientY}px, rgba(139, 92, 246, 0.15), transparent 40%)`;
+      }
     };
 
     window.addEventListener("mousemove", handleMouseMove);
@@ -20,10 +20,8 @@ export function MouseTrail() {
 
   return (
     <div 
+      ref={trailRef}
       className="pointer-events-none fixed inset-0 z-[-1] opacity-60 mix-blend-screen transition-opacity duration-300"
-      style={{
-        background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(139, 92, 246, 0.15), transparent 40%)`
-      }}
     />
   );
 }

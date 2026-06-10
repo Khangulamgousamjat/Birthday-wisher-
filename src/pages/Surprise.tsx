@@ -336,17 +336,25 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 2, staggerChildren: 0.1 }}
               >
-                {bodyText.split("").map((char, index) => (
-                  <motion.span
-                    key={index}
-                    initial={{ opacity: 0, y: 10, filter: "blur(5px)" }}
-                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                    transition={{ delay: index * 0.05, duration: 0.4 }}
-                    className={char === '\n' ? 'block mb-4' : ''}
-                  >
-                    {char}
-                  </motion.span>
-                ))}
+                {bodyText.split(/(\n|\s+)/).map((word, index) => {
+                  if (word === "\n") {
+                    return <br key={index} />;
+                  }
+                  if (word.trim() === "") {
+                    return <span key={index}> </span>;
+                  }
+                  return (
+                    <motion.span
+                      key={index}
+                      initial={{ opacity: 0, y: 5, filter: "blur(3px)" }}
+                      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                      transition={{ delay: index * 0.03, duration: 0.35 }}
+                      className="inline-block"
+                    >
+                      {word}
+                    </motion.span>
+                  );
+                })}
               </motion.p>
               <AnimatePresence>
                 {showContinue && (
@@ -386,19 +394,9 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                       style={{ background: 'radial-gradient(circle at center, rgba(234,179,8,0.3) 0%, rgba(236,72,153,0.15) 50%, rgba(0,0,0,0) 80%)' }}
                     />
                     {/* Smooth rotating outer ring */}
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-                      style={{ willChange: "transform" }}
-                      className="absolute w-[110%] h-[110%] rounded-full border border-yellow-400/30 border-t-pink-500/60 border-r-purple-500/40 shadow-[0_0_20px_rgba(234,179,8,0.3)]"
-                    />
+                    <div className="absolute w-[110%] h-[110%] rounded-full border border-yellow-400/30 border-t-pink-500/60 border-r-purple-500/40 shadow-[0_0_20px_rgba(234,179,8,0.3)] animate-spin-clockwise" />
                     {/* Counter rotating inner dashed/glow ring */}
-                    <motion.div
-                      animate={{ rotate: -360 }}
-                      transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-                      style={{ willChange: "transform" }}
-                      className="absolute w-[95%] h-[95%] rounded-full border border-dashed border-pink-400/30 border-b-yellow-400/60"
-                    />
+                    <div className="absolute w-[95%] h-[95%] rounded-full border border-dashed border-pink-400/30 border-b-yellow-400/60 animate-spin-counter-clockwise" />
                   </div>
                   
                   {/* The Beating Neon Heart */}
@@ -446,19 +444,9 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                     style={{ background: 'radial-gradient(circle at center, rgba(168,85,247,0.4) 0%, rgba(236,72,153,0.1) 50%, rgba(0,0,0,0) 80%)' }}
                   />
                   {/* Smooth rotating ring */}
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                    style={{ willChange: "transform" }}
-                    className="absolute w-[110%] h-[110%] rounded-full border border-pink-500/20 border-t-purple-400/50 border-r-amber-400/30 shadow-[0_0_15px_rgba(236,72,153,0.2)]"
-                  />
+                  <div className="absolute w-[110%] h-[110%] rounded-full border border-pink-500/20 border-t-purple-400/50 border-r-amber-400/30 shadow-[0_0_15px_rgba(236,72,153,0.2)] animate-spin-clockwise" />
                   {/* Counter rotating inner ring */}
-                  <motion.div
-                    animate={{ rotate: -360 }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    style={{ willChange: "transform" }}
-                    className="absolute w-[100%] h-[100%] rounded-full border border-purple-500/10 border-b-pink-400/40"
-                  />
+                  <div className="absolute w-[100%] h-[100%] rounded-full border border-purple-500/10 border-b-pink-400/40 animate-spin-counter-clockwise" />
                 </div>
                 <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] px-4">
                   {finaleText}

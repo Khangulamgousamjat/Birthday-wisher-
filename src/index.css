@@ -186,4 +186,24 @@ body {
     0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
     100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.2); }
   }
+
+  @keyframes spin-clockwise {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes spin-counter-clockwise {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(-360deg); }
+  }
+
+  .animate-spin-clockwise {
+    animation: spin-clockwise 15s linear infinite;
+    will-change: transform;
+  }
+
+  .animate-spin-counter-clockwise {
+    animation: spin-counter-clockwise 20s linear infinite;
+    will-change: transform;
+  }
 }
