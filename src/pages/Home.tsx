@@ -284,7 +284,7 @@ export default function Home() {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center ml-1">
                     <label htmlFor="photo" className="text-sm font-medium text-white/80">
-                      Heart Photo <span className="text-white/40">(Optional)</span>
+                      Add Photo
                     </label>
                   </div>
                   <input
