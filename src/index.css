@@ -304,4 +304,21 @@ body {
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3),
                 inset 0 0 15px rgba(255, 255, 255, 0.05) !important;
   }
+
+  /* Override browser autofill background styling */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.07) inset !important;
+    box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.07) inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+    caret-color: #ffffff;
+  }
 }

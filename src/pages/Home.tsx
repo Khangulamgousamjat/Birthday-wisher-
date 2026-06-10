@@ -278,6 +278,7 @@ export default function Home() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter their name"
+                    autoComplete="off"
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all font-medium"
                   />
                 </div>
@@ -309,6 +310,7 @@ export default function Home() {
                     value={finaleText}
                     onChange={(e) => setFinaleText(e.target.value)}
                     placeholder="HAPPY BIRTHDAY! 🎂"
+                    autoComplete="off"
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all font-medium text-sm"
                   />
                 </div>
