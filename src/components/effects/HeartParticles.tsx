@@ -160,21 +160,38 @@ export default function HeartParticles({ scene, burstTrigger, theme = "midnight"
 
         ctx.save();
         ctx.globalAlpha = p.alpha;
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = 10;
         ctx.shadowColor = p.color;
-        ctx.fillStyle = p.color;
-        
-        // Draw custom glowing bubble (circle)
+
+        const radius = p.size * 0.5;
+
+        // Create radial gradient for a rich transparent 3D glass bubble effect
+        const grad = ctx.createRadialGradient(
+          p.x - radius * 0.15, p.y - radius * 0.15, radius * 0.05,
+          p.x, p.y, radius
+        );
+        grad.addColorStop(0, "rgba(255, 255, 255, 0.45)");
+        grad.addColorStop(0.3, p.color + "1a"); // very transparent middle (10% opacity)
+        grad.addColorStop(0.85, p.color + "44"); // glowing theme color (27% opacity)
+        grad.addColorStop(1, p.color + "99"); // outer border color (60% opacity)
+
+        ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * 0.5, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
         ctx.closePath();
         ctx.fill();
-        
-        // Add a glowing white stroke core for a realistic neon bubble look
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.55)";
+
+        // Shiny glass white stroke core
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.45)";
         ctx.lineWidth = 1;
         ctx.stroke();
-        
+
+        // Specular highlight spot (makes it feel 3D glossy)
+        ctx.beginPath();
+        ctx.arc(p.x - radius * 0.2, p.y - radius * 0.2, radius * 0.12, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+        ctx.fill();
+
         ctx.restore();
       });
 
@@ -212,21 +229,38 @@ export default function HeartParticles({ scene, burstTrigger, theme = "midnight"
 
         ctx.save();
         ctx.globalAlpha = p.alpha;
-        ctx.shadowBlur = 20;
+        ctx.shadowBlur = 15;
         ctx.shadowColor = p.color;
-        ctx.fillStyle = p.color;
-        
-        // Draw glowing bubble (circle) instead of heart
+
+        const radius = p.size * 0.5;
+
+        // Create radial gradient for a rich transparent 3D glass bubble effect
+        const grad = ctx.createRadialGradient(
+          p.x - radius * 0.15, p.y - radius * 0.15, radius * 0.05,
+          p.x, p.y, radius
+        );
+        grad.addColorStop(0, "rgba(255, 255, 255, 0.45)");
+        grad.addColorStop(0.3, p.color + "1a"); // very transparent middle (10% opacity)
+        grad.addColorStop(0.85, p.color + "44"); // glowing theme color (27% opacity)
+        grad.addColorStop(1, p.color + "99"); // outer border color (60% opacity)
+
+        ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * 0.5, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
         ctx.closePath();
         ctx.fill();
-        
+
         // White stroke overlay core for a neon burst glow
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.55)";
         ctx.lineWidth = 1.2;
         ctx.stroke();
-        
+
+        // Specular highlight spot (makes it feel 3D glossy)
+        ctx.beginPath();
+        ctx.arc(p.x - radius * 0.2, p.y - radius * 0.2, radius * 0.12, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+        ctx.fill();
+
         ctx.restore();
         return true;
       });
