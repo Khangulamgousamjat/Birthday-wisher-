@@ -77,7 +77,7 @@ body {
 }
 
 :root {
-  --color-bg-deep:        #0a0010;
+  --color-bg-deep:        #1a0b2e;
   --color-bg-mid:         #0f0025;
   --color-aurora-1:       #4a0080;
   --color-aurora-2:       #8b0057;
@@ -400,7 +400,7 @@ body {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background: var(--color-bg-deep);
+  background: radial-gradient(circle at center, #4b1d52 0%, #1a0b2e 100%);
   overflow: hidden;
 }
 
