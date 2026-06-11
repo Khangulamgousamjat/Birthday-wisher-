@@ -85,7 +85,7 @@ const confettiColors: Record<string, string[]> = {
   emerald: ['#34d399', '#065f46', '#6ee7b7', '#ffffff'],
 };
 
-import HeartParticles from "@/components/effects/HeartParticles";
+
 
 function ExperienceClient({ data }: { data: ExperienceData }) {
   const navigate = useNavigate();
@@ -383,8 +383,6 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
     <div
       className="relative min-h-screen w-full overflow-x-hidden flex flex-col items-center justify-between p-4 sm:p-8 selection:bg-[var(--theme-accent)]/30"
     >
-      {/* Heart Particle Canvas System (Fullscreen, z-index 10) */}
-      <HeartParticles scene={scene} burstTrigger={burstTrigger} theme={theme} />
 
       <AnimatePresence>
         {scene > 0 && customMusic !== "none" && (

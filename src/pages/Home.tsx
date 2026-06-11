@@ -431,7 +431,7 @@ export default function Home() {
                   <label className="text-sm font-medium text-white/80 ml-1">
                     Choose a vibe
                   </label>
-                  <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-xl p-3 justify-around">
+                  <div className="flex items-center gap-4 bg-white/[0.04] backdrop-blur-sm border border-white/10 rounded-xl p-3 justify-around">
                     {[
                       { key: "midnight", name: "Midnight Purple", bg: "bg-purple-600" },
                       { key: "rosegold", name: "Rose Gold", bg: "bg-rose-600" },
@@ -476,7 +476,7 @@ export default function Home() {
                     type="file"
                     accept="image/*"
                     onChange={handleImageUpload}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-pink-500/20 file:text-pink-300 hover:file:bg-pink-500/30 transition-all font-medium text-sm cursor-pointer"
+                    className="w-full bg-white/[0.04] backdrop-blur-sm border border-white/10 rounded-xl px-4 py-2 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-pink-500/20 file:text-pink-300 hover:file:bg-pink-500/30 transition-all font-medium text-sm cursor-pointer"
                   />
                   {imageError && <p className="text-red-400 text-xs mt-1 ml-1">{imageError}</p>}
                   <div className="mt-2 ml-1">
@@ -534,7 +534,7 @@ export default function Home() {
                               playSong(val); // Auto-play on change
                             }
                           }}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all text-sm cursor-pointer pr-10"
+                          className="w-full bg-white/[0.04] backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all text-sm cursor-pointer pr-10"
                         >
                           <option value="/Happy Birthday Song.mp3" className="bg-gray-900">Default - Happy Birthday 🎂</option>
                           <option value="/happy birthday slowed.mp3" className="bg-gray-900">Happy Birthday (Slowed) 🎂</option>
@@ -657,7 +657,7 @@ export default function Home() {
                   <span className="text-xs font-semibold uppercase tracking-wider text-purple-300/80 ml-1">
                     Your Magic Link
                   </span>
-                  <div className="relative flex items-center bg-black/50 border border-white/10 rounded-full p-1.5 pl-5 gap-3 overflow-hidden shadow-inner focus-within:ring-2 focus-within:ring-purple-500/50 transition-all duration-300">
+                  <div className="relative flex items-center bg-white/[0.05] backdrop-blur-md border border-white/15 rounded-full p-1.5 pl-5 gap-3 overflow-hidden shadow-inner focus-within:ring-2 focus-within:ring-purple-500/50 transition-all duration-300">
                     <p className="text-sm text-white/90 truncate font-mono select-all flex-1 text-left mr-2">
                       {generatedLink}
                     </p>
@@ -682,7 +682,7 @@ export default function Home() {
                 </div>
 
                 {viewCount !== null && (
-                  <div className="text-white/60 text-xs font-medium mt-4 flex items-center justify-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 w-fit mx-auto shadow-sm">
+                  <div className="text-white/60 text-xs font-medium mt-4 flex items-center justify-center gap-1.5 bg-white/[0.04] backdrop-blur-sm border border-white/10 rounded-full px-4 py-1.5 w-fit mx-auto shadow-sm">
                     <span className="flex items-center gap-1 text-white/50">
                       <Eye className="h-3.5 w-3.5" />
                       <span>Opened {viewCount} {viewCount === 1 ? "time" : "times"}</span>

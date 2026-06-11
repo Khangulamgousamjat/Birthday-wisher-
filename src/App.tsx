@@ -9,8 +9,23 @@ const Surprise = React.lazy(() => import("./pages/Surprise"));
 function App() {
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden">
-      {/* Premium Radial Purple Background */}
-      <div className="aurora-bg" aria-hidden="true" />
+      {/* Premium Video Background */}
+      <div className="aurora-bg" aria-hidden="true">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          disablePictureInPicture
+          preload="auto"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ willChange: "transform" }}
+        >
+          <source src="/bright shimmering dust flickering particles light background purple video_1080p.mp4" type="video/mp4" />
+        </video>
+        {/* Thin dark overlay — lets video show, keeps text readable */}
+        <div className="absolute inset-0 bg-black/20" />
+      </div>
 
       <Routes>
         <Route path="/" element={<Home />} />
