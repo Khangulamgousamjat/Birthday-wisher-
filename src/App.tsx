@@ -9,11 +9,8 @@ const Surprise = React.lazy(() => import("./pages/Surprise"));
 function App() {
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden">
-      {/* Animated Aurora Background */}
-      <div className="aurora-bg" aria-hidden="true">
-        <div className="aurora-3" />
-        <div className="aurora-4" />
-      </div>
+      {/* Premium Radial Purple Background */}
+      <div className="aurora-bg" aria-hidden="true" />
 
       <Routes>
         <Route path="/" element={<Home />} />
