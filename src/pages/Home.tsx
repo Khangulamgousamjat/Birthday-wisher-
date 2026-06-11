@@ -7,6 +7,7 @@ import { Copy, Sparkles, ArrowRight, CheckCircle2, Play, Pause, Music, User, Mai
 import { saveSurpriseData } from "@/lib/db";
 import { db } from "@/lib/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
+import { FloatingInput } from "@/components/FloatingInput";
 
 export default function Home() {
   const [name, setName] = useState("");
@@ -23,6 +24,7 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const lastBlobUrl = useRef<string | null>(null);
 
@@ -53,13 +55,37 @@ export default function Home() {
   }, [generatedLink]);
 
   // Cleanup on unmount
+  const previewUrlRef = useRef<string | null>(null);
+  useEffect(() => {
+    previewUrlRef.current = previewUrl;
+  }, [previewUrl]);
+
   useEffect(() => {
     return () => {
       if (lastBlobUrl.current) {
         URL.revokeObjectURL(lastBlobUrl.current);
       }
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
     };
   }, []);
+
+  const handleRipple = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const btn = e.currentTarget;
+    const circle = document.createElement('span');
+    const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+    const radius = diameter / 2;
+    const rect = btn.getBoundingClientRect();
+    circle.style.cssText = `
+      width: ${diameter}px; height: ${diameter}px;
+      left: ${e.clientX - rect.left - radius}px;
+      top: ${e.clientY - rect.top - radius}px;
+    `;
+    circle.classList.add('cta-ripple');
+    btn.querySelector('.cta-ripple')?.remove();
+    btn.appendChild(circle);
+  };
 
   const [loadingText, setLoadingText] = useState("Brewing Magic...");
 
@@ -156,10 +182,22 @@ export default function Home() {
             setImageError("Image is too large even after compression.");
             setImageBase64("");
             setImageFileName("");
+            if (previewUrl) {
+              URL.revokeObjectURL(previewUrl);
+              setPreviewUrl(null);
+            }
           } else {
             setImageError("");
             setImageBase64(compressedBase64);
             setImageFileName(file.name);
+            canvas.toBlob((blob) => {
+              if (blob) {
+                if (previewUrl) {
+                  URL.revokeObjectURL(previewUrl);
+                }
+                setPreviewUrl(URL.createObjectURL(blob));
+              }
+            }, 'image/jpeg', 0.6);
           }
         };
         img.src = event.target?.result as string;
@@ -278,10 +316,10 @@ export default function Home() {
             <Sparkles className="h-4 w-4 text-purple-400" />
             <span className="text-sm font-medium text-white/80">Digital Surprise Gift</span>
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6 font-serif text-gradient-gold drop-shadow-lg">
+          <h1 className="shimmer-title mb-6">
             Create a Magical Page
           </h1>
-          <p className="text-lg text-white/70 font-light max-w-md mx-auto">
+          <p className="magic-subtitle max-w-md mx-auto">
             Craft a beautiful, personalized animated experience for someone special.
           </p>
         </motion.div>
@@ -349,58 +387,44 @@ export default function Home() {
             </div>
           )}
 
-          <SpotlightCard className="p-8 md:p-10 premium-glass-card relative group w-full">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+        <motion.div
+          className="magic-card w-full"
+          initial={{ opacity: 0, y: 32, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <SpotlightCard className="p-8 md:p-10 relative group w-full bg-transparent">
             
             {!generatedLink ? (
               <form onSubmit={handleGenerate} className="space-y-6 relative z-10">
-                <div className="space-y-2">
-                  <label htmlFor="name" className="text-sm font-medium text-white/80 ml-1">
-                    Who is this for?
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter their name"
-                    autoComplete="off"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all font-medium"
-                  />
-                </div>
+                <FloatingInput
+                  id="name"
+                  label="Who is this for?"
+                  icon="👤"
+                  value={name}
+                  onChange={setName}
+                  placeholder="Enter their name"
+                  required
+                />
                 
-                <div className="space-y-2">
-                  <label htmlFor="message" className="text-sm font-medium text-white/80 ml-1">
-                    Your Special Message <span className="text-white/40">(Optional)</span>
-                  </label>
-                  <textarea
-                    id="message"
-                    rows={3}
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Write something nice..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all resize-none font-medium text-sm"
-                  />
-                </div>
+                <FloatingInput
+                  id="message"
+                  label="Your Special Message (Optional)"
+                  icon="💌"
+                  value={message}
+                  onChange={setMessage}
+                  placeholder="Write something nice..."
+                  multiline
+                />
 
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center ml-1">
-                    <label htmlFor="finaleText" className="text-sm font-medium text-white/80">
-                      Finale Message
-                    </label>
-                    <span className="text-[10px] text-white/40">e.g. Happy Anniversary!</span>
-                  </div>
-                  <input
-                    id="finaleText"
-                    type="text"
-                    value={finaleText}
-                    onChange={(e) => setFinaleText(e.target.value)}
-                    placeholder="HAPPY BIRTHDAY! 🎂"
-                    autoComplete="off"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all font-medium text-sm"
-                  />
-                </div>
+                <FloatingInput
+                  id="finaleText"
+                  label="Finale Message"
+                  icon="🎂"
+                  value={finaleText}
+                  onChange={setFinaleText}
+                  placeholder="HAPPY BIRTHDAY! 🎂"
+                />
  
                 {/* Theme Selector */}
                 <div className="space-y-3">
@@ -455,14 +479,48 @@ export default function Home() {
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-pink-500/20 file:text-pink-300 hover:file:bg-pink-500/30 transition-all font-medium text-sm cursor-pointer"
                   />
                   {imageError && <p className="text-red-400 text-xs mt-1 ml-1">{imageError}</p>}
-                  {imageFileName && !imageError && <p className="text-green-400 text-xs mt-1 ml-1">✓ {imageFileName} attached</p>}
+                  <div className="mt-2 ml-1">
+                    {previewUrl ? (
+                      <motion.div
+                        className="photo-preview"
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                      >
+                        <img src={previewUrl} alt="Preview" className="photo-thumb" />
+                        <span className="photo-check">✓ Photo ready</span>
+                      </motion.div>
+                    ) : imageFileName && !imageError ? (
+                      <p className="text-green-400 text-xs">✓ {imageFileName} attached</p>
+                    ) : (
+                      <span className="text-xs text-white/30">No file chosen</span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/80 ml-1">
-                      Background Music <span className="text-white/40">(Optional)</span>
-                    </label>
+                    <div className="flex justify-between items-center ml-1">
+                      <label className="text-sm font-medium text-white/80">
+                        Background Music <span className="text-white/40">(Optional)</span>
+                      </label>
+                      {isPlayingPreview && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-rose-300 font-medium truncate max-w-[120px] select-none">
+                            {selectedMusic === "custom" ? (musicFile?.name || "Custom Track") : selectedMusic.split("/").pop()?.replace(".mp3", "")}
+                          </span>
+                          <div className="waveform">
+                            <div className="waveform-bar" />
+                            <div className="waveform-bar" />
+                            <div className="waveform-bar" />
+                            <div className="waveform-bar" />
+                            <div className="waveform-bar" />
+                            <div className="waveform-bar" />
+                            <div className="waveform-bar" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     <div className="flex gap-2">
                       <div className="relative flex-1">
                         <select 
@@ -556,23 +614,27 @@ export default function Home() {
                   </motion.div>
                 )}
 
-                <Button 
+                <button 
                   type="submit" 
                   disabled={isGenerating || !name.trim()} 
-                  className="w-full group py-4 text-base mt-4"
+                  onClick={handleRipple}
+                  className="cta-button mt-4"
                 >
                   {isGenerating ? (
-                    <span className="flex items-center space-x-2">
-                      <Sparkles className="animate-spin h-5 w-5" />
-                      <span>{loadingText}</span>
+                    <span className="flex flex-col items-center justify-center gap-1.5 py-1">
+                      <span className="loading-wand">🪄</span>
+                      <span className="flex items-center gap-2 text-xs md:text-sm font-medium tracking-wide">
+                        <Sparkles className="animate-spin h-4 w-4 text-purple-300" />
+                        <span>{loadingText}</span>
+                      </span>
                     </span>
                   ) : (
-                    <span className="flex items-center space-x-2">
+                    <span className="flex items-center justify-center space-x-2 w-full">
                       <span>Generate Magic Link</span>
                       <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                     </span>
                   )}
-                </Button>
+                </button>
               </form>
             ) : (
               <motion.div 
@@ -591,14 +653,31 @@ export default function Home() {
                   <p className="text-white/70 text-base max-w-xs mx-auto">Send this link to <span className="text-white font-medium">{name}</span> to surprise them.</p>
                 </div>
 
-                <div className="p-4 rounded-xl bg-black/60 border border-white/10 flex items-center justify-between gap-3 overflow-hidden shadow-inner">
-                  <p className="text-sm text-white/90 truncate font-mono select-all flex-1 text-left">{generatedLink}</p>
-                  <button 
-                    onClick={copyToClipboard}
-                    className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all text-white flex-shrink-0 active:scale-95"
-                  >
-                    {copied ? <CheckCircle2 className="h-5 w-5 text-green-400" /> : <Copy className="h-5 w-5" />}
-                  </button>
+                <div className="space-y-2 text-left">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-purple-300/80 ml-1">
+                    Your Magic Link
+                  </span>
+                  <div className="relative flex items-center bg-black/50 border border-white/10 rounded-full p-1.5 pl-5 gap-3 overflow-hidden shadow-inner focus-within:ring-2 focus-within:ring-purple-500/50 transition-all duration-300">
+                    <p className="text-sm text-white/90 truncate font-mono select-all flex-1 text-left mr-2">
+                      {generatedLink}
+                    </p>
+                    <button 
+                      onClick={copyToClipboard}
+                      className="px-5 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all duration-300 flex-shrink-0"
+                    >
+                      {copied ? (
+                        <>
+                          <CheckCircle2 className="h-3.5 w-3.5 text-green-300 animate-bounce" />
+                          <span>Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3.5 w-3.5" />
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {viewCount !== null && (
@@ -619,15 +698,18 @@ export default function Home() {
                   </div>
                 )}
                 
-                <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                  <Button 
-                    variant="outline" 
+                <div className="flex flex-col sm:flex-row gap-4 pt-4 w-full">
+                  <button 
                     onClick={() => { 
                       setGeneratedLink(""); 
                       setName(""); 
                       setMessage(""); 
                       setImageBase64("");
                       setImageFileName("");
+                      if (previewUrl) {
+                        URL.revokeObjectURL(previewUrl);
+                        setPreviewUrl(null);
+                      }
                       setMusicFile(null);
                       setMusicError("");
                       setError("");
@@ -635,26 +717,28 @@ export default function Home() {
                       setViewCount(null);
                       setReactionsCount(null);
                     }}
-                    className="w-full"
+                    className="w-full sm:flex-1 px-6 py-3 rounded-full border border-white/10 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white hover:border-white/20 transition-all font-semibold text-sm text-center shadow-md active:scale-98 select-none"
                   >
                     Create Another
-                  </Button>
+                  </button>
                   <a 
                     href={generatedLink} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="w-full"
+                    className="w-full sm:flex-1"
                   >
-                    <Button className="w-full">
-                      Preview
-                    </Button>
+                    <button className="cta-button py-3 text-sm flex items-center justify-center gap-1.5 shadow-[0_4px_20px_rgba(124,58,237,0.25)] hover:shadow-[0_8px_30px_rgba(124,58,237,0.4)]">
+                      <span>Preview</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
                   </a>
                 </div>
               </motion.div>
             )}
           </SpotlightCard>
         </motion.div>
-      </div>
+      </motion.div>
+    </div>
       
       {/* Footer */}
       <footer className="w-full flex flex-col items-center gap-3 text-sm z-20 pb-6 pt-4">

@@ -32,10 +32,10 @@ interface AmbientParticle {
 }
 
 const themePalettes: Record<string, string[]> = {
-  midnight: ["#ff69b4", "#ff1493", "#ff6b6b", "#ffb6c1"],
-  rosegold: ["#fb7185", "#be123c", "#fda4af", "#ff1493"],
-  ocean: ["#60a5fa", "#1d4ed8", "#93c5fd", "#38bdf8"],
-  emerald: ["#34d399", "#065f46", "#6ee7b7", "#a7f3d0"],
+  midnight: ["#ff69b4", "#ff1493", "#ff7676", "#ffb6c1", "#c084fc", "#e879f9"],
+  rosegold: ["#fb7185", "#f43f5e", "#fda4af", "#ff1493", "#ec4899"],
+  ocean: ["#60a5fa", "#3b82f6", "#93c5fd", "#38bdf8", "#00f0ff"],
+  emerald: ["#34d399", "#22c55e", "#6ee7b7", "#a7f3d0", "#4ade80"],
 };
 
 export default function HeartParticles({ scene, burstTrigger, theme = "midnight" }: HeartParticlesProps) {

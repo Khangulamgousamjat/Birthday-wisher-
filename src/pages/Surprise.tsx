@@ -60,7 +60,7 @@ export default function Surprise() {
         <h1 className="text-2xl mb-4 text-white/80">Oops! This magic link doesn't exist or has expired.</h1>
         <button
           onClick={() => navigate("/")}
-          className="px-6 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all text-white"
+          className="premium-button text-sm px-6 py-2.5 shadow-md"
         >
           Create One
         </button>
@@ -105,6 +105,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
   const [areCandlesBlown, setAreCandlesBlown] = useState(false);
   const [showSmoke, setShowSmoke] = useState(false);
   const [showFinalSummary, setShowFinalSummary] = useState(false);
+  const sceneTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Parse custom parameters
   let bodyText = data.message;
@@ -219,22 +220,22 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
 
   // Scene transition timers
   useEffect(() => {
-    let timer: NodeJS.Timeout;
     if (scene === 1) {
-      timer = setTimeout(() => setScene(2), 5000);
+      sceneTimerRef.current = setTimeout(() => setScene(2), 5000);
     } else if (scene === 2) {
-      timer = setTimeout(() => setScene(3), 5000);
+      sceneTimerRef.current = setTimeout(() => setScene(3), 5000);
     } else if (scene === 3) {
       const typeDuration = Math.max(2000, bodyText.length * 50 + 1000);
-      timer = setTimeout(() => setShowContinue(true), typeDuration);
+      sceneTimerRef.current = setTimeout(() => setShowContinue(true), typeDuration);
     } else if (scene === 4) {
-      timer = setTimeout(() => setScene(5), 7000);
-    } else if (scene === 5) {
-      // Automatically proceed to the cake scene (Scene 6) after 8.5 seconds
-      timer = setTimeout(() => setScene(6), 8500);
+      sceneTimerRef.current = setTimeout(() => setScene(5), 10000); // 10 seconds of auto-wait
     }
 
-    return () => clearTimeout(timer);
+    return () => {
+      if (sceneTimerRef.current) {
+        clearTimeout(sceneTimerRef.current);
+      }
+    };
   }, [scene, bodyText.length]);
 
 
@@ -575,12 +576,12 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                     animate={{ opacity: 1, scale: 1 }}
                     className="mt-12"
                   >
-                    <Button
+                    <button
                       onClick={() => setScene(4)}
-                      className="mx-auto text-lg px-10 py-4 shadow-xl shadow-pink-500/10"
+                      className="premium-button mx-auto text-lg px-10 py-4 shadow-xl shadow-pink-500/10"
                     >
                       Continue Magic
-                    </Button>
+                    </button>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -604,12 +605,12 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                   <div className="absolute inset-[-20px] md:inset-[-40px] z-[-1] pointer-events-none flex items-center justify-center">
                     <div 
                       className="absolute w-full h-full opacity-70 rounded-full"
-                      style={{ background: `radial-gradient(circle at center, var(--theme-primary) 0%, var(--theme-accent) 50%, rgba(0,0,0,0) 80%)` }}
+                      style={{ background: `radial-gradient(circle at center, var(--theme-accent) 0%, var(--theme-primary) 50%, rgba(0,0,0,0) 80%)` }}
                     />
                     {/* Smooth rotating outer ring */}
-                    <div className="absolute w-[110%] h-[110%] rounded-full border border-[var(--theme-accent)]/30 border-t-[var(--theme-primary)]/60 border-r-[var(--theme-accent)]/40 shadow-[0_0_20px_var(--theme-primary)] animate-spin-clockwise" />
+                    <div className="absolute w-[110%] h-[110%] rounded-full border border-[var(--theme-accent)]/50 border-t-white/80 border-r-[var(--theme-accent)]/60 shadow-[0_0_25px_var(--theme-accent)] animate-spin-clockwise" />
                     {/* Counter rotating inner dashed/glow ring */}
-                    <div className="absolute w-[95%] h-[95%] rounded-full border border-dashed border-[var(--theme-accent)]/30 border-b-[var(--theme-primary)]/60 animate-spin-counter-clockwise" />
+                    <div className="absolute w-[95%] h-[95%] rounded-full border border-dashed border-[var(--theme-accent)]/40 border-b-white/80 animate-spin-counter-clockwise" />
                   </div>
                   
                   {/* The Beating Neon Heart */}
@@ -619,10 +620,16 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                     onClick={(e) => {
                       e.stopPropagation(); // prevent triggering general confetti
                       setBurstTrigger({ x: e.clientX, y: e.clientY, time: Date.now() });
+                      if (sceneTimerRef.current) {
+                        clearTimeout(sceneTimerRef.current);
+                      }
+                      setTimeout(() => {
+                        setScene(5);
+                      }, 1200);
                     }}
-                    className="relative z-10 flex items-center justify-center p-6 bg-[var(--theme-primary)]/10 rounded-full backdrop-blur-md border border-[var(--theme-primary)]/30 cursor-pointer shadow-[0_0_30px_var(--theme-primary)]"
+                    className="relative z-10 flex items-center justify-center p-6 bg-white/10 rounded-full backdrop-blur-md border border-[var(--theme-accent)]/40 cursor-pointer shadow-[0_0_35px_rgba(255,255,255,0.1)] hover:border-white/60 transition-all duration-300"
                   >
-                    <Heart className="w-16 h-16 md:w-20 md:h-20 text-[var(--theme-primary)] fill-[var(--theme-primary)]/80 drop-shadow-[0_0_15px_var(--theme-primary)]" />
+                    <Heart className="w-16 h-16 md:w-20 md:h-20 text-[var(--theme-accent)] fill-[var(--theme-accent)]/90 drop-shadow-[0_0_20px_var(--theme-accent)]" />
                   </motion.div>
                 </div>
                 <h2 className="text-3xl md:text-4xl font-light text-white/80 tracking-widest uppercase">
@@ -670,12 +677,12 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                 </h2>
               </div>
 
-              {/* Floating Reaction Button */}
+              {/* Floating Reaction Button & Continue to Cake */}
               <motion.div
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.5, type: "spring", stiffness: 200, damping: 15 }}
-                className="my-2"
+                className="my-2 flex flex-col sm:flex-row items-center gap-4 relative z-20"
               >
                 <motion.button
                   onClick={handleSendReaction}
@@ -699,43 +706,15 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                     </>
                   )}
                 </motion.button>
+
+                <button
+                  onClick={() => setScene(6)}
+                  className="premium-button text-sm px-6 py-3 shadow-[0_4px_20px_rgba(124,58,237,0.3)]"
+                >
+                  <span>Continue to Cake 🎂</span>
+                  <ArrowRight className="w-4 h-4 ml-1.5" />
+                </button>
               </motion.div>
-
-              <div className="flex flex-wrap justify-center gap-6 mt-6">
-                <Button
-                  onClick={copyLink}
-                  className="sm:w-auto"
-                >
-                  {copied ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : <Copy className="w-5 h-5" />}
-                  {copied ? 'Copied!' : 'Copy Link'}
-                </Button>
-                <Button
-                  onClick={shareLink}
-                  className="sm:w-auto"
-                >
-                  <Share2 className="w-5 h-5" />
-                  Share Surprise
-                </Button>
-
-
-                <Button
-                  onClick={replay}
-                  className="sm:w-auto"
-                >
-                  <RefreshCw className="w-5 h-5" />
-                  Replay
-                </Button>
-              </div>
-
-              <div className="mt-8 pb-12">
-                <Button
-                  onClick={() => navigate("/")}
-                  className="sm:w-auto px-8"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  Create Your Own Magic Link
-                </Button>
-              </div>
             </motion.div>
           )}
 
@@ -860,28 +839,35 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                     {data.name}
                   </h1>
 
-                  <div className="flex flex-wrap justify-center gap-6 pt-8">
-                    <Button
+                  <div className="flex flex-wrap justify-center gap-4 pt-8">
+                    <button
                       onClick={shareLink}
-                      className="sm:w-auto bg-gradient-to-r from-[var(--theme-primary)] to-[var(--theme-accent)] shadow-lg"
+                      className="premium-button text-sm px-6 py-3 shadow-[0_4px_20px_rgba(124,58,237,0.3)] flex items-center justify-center gap-1.5"
                     >
-                      <Share2 className="w-5 h-5" />
-                      Share This Moment
-                    </Button>
-                    <Button
+                      <Share2 className="w-4 h-4" />
+                      <span>Share This Moment</span>
+                    </button>
+                    <button
+                      onClick={copyLink}
+                      className="px-6 py-3 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white hover:border-white/20 transition-all font-semibold text-sm flex items-center justify-center gap-1.5 shadow-md active:scale-98 select-none"
+                    >
+                      {copied ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+                      <span>{copied ? 'Copied!' : 'Copy Link'}</span>
+                    </button>
+                    <button
                       onClick={replay}
-                      className="sm:w-auto"
+                      className="px-6 py-3 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white hover:border-white/20 transition-all font-semibold text-sm flex items-center justify-center gap-1.5 shadow-md active:scale-98 select-none"
                     >
-                      <RefreshCw className="w-5 h-5" />
-                      Replay Surprise
-                    </Button>
-                    <Button
+                      <RefreshCw className="w-4 h-4" />
+                      <span>Replay Surprise</span>
+                    </button>
+                    <button
                       onClick={() => navigate("/")}
-                      className="sm:w-auto"
+                      className="premium-button text-sm px-6 py-3 shadow-[0_4px_20px_rgba(124,58,237,0.3)] flex items-center justify-center gap-1.5"
                     >
                       <Sparkles className="w-4 h-4" />
-                      Create Your Own
-                    </Button>
+                      <span>Create Your Own</span>
+                    </button>
                   </div>
                 </motion.div>
               )}
