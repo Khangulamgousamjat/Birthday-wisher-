@@ -25,11 +25,15 @@ interface BurstParticle {
 interface AmbientParticle {
   x: number;
   y: number;
-  vx: number;
-  vy: number;
+  baseSpeedY: number;
+  speedY: number;
+  speedX: number;
   size: number;
   color: string;
   alpha: number;
+  swaySpeed: number;
+  swayAmount: number;
+  seed: number;
 }
 
 const themePalettes: Record<string, string[]> = {
@@ -39,7 +43,53 @@ const themePalettes: Record<string, string[]> = {
   emerald: ["#34d399", "#22c55e", "#6ee7b7", "#a7f3d0", "#4ade80"],
 };
 
-// Custom Bezier heart drawing replaced with circle bubbles
+// Helper to convert hex to RGBA base string
+function hexToRgbaBase(hex: string): string {
+  const cleanHex = hex.replace("#", "");
+  const r = parseInt(cleanHex.substring(0, 2), 16);
+  const g = parseInt(cleanHex.substring(2, 4), 16);
+  const b = parseInt(cleanHex.substring(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, `;
+}
+
+// Function to draw a perfect heart path
+function drawHeart(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
+  ctx.beginPath();
+  const topCurveHeight = size * 0.3;
+  
+  // Start at the top center cleft of the heart
+  ctx.moveTo(x, y + topCurveHeight);
+  
+  // Top left curve
+  ctx.bezierCurveTo(
+    x, y, 
+    x - size / 2, y, 
+    x - size / 2, y + topCurveHeight
+  );
+  
+  // Bottom left curve
+  ctx.bezierCurveTo(
+    x - size / 2, y + (size + topCurveHeight) / 2, 
+    x, y + (size + topCurveHeight) / 2, 
+    x, y + size
+  );
+  
+  // Bottom right curve
+  ctx.bezierCurveTo(
+    x, y + (size + topCurveHeight) / 2, 
+    x + size / 2, y + (size + topCurveHeight) / 2, 
+    x + size / 2, y + topCurveHeight
+  );
+  
+  // Top right curve
+  ctx.bezierCurveTo(
+    x + size / 2, y, 
+    x, y, 
+    x, y + topCurveHeight
+  );
+  
+  ctx.closePath();
+}
 
 export default function HeartParticles({ scene, burstTrigger, theme = "midnight" }: HeartParticlesProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -48,27 +98,42 @@ export default function HeartParticles({ scene, burstTrigger, theme = "midnight"
   const burstParticles = useRef<BurstParticle[]>([]);
   const ambientParticles = useRef<AmbientParticle[]>([]);
   
+  // Mouse position tracking (Dodging interaction)
+  const mouse = useRef({ x: -1000, y: -1000 });
+  const INTERACTION_RADIUS = 120; // How far the mouse pushes bubbles
+
   // White flash state
   const flashAlpha = useRef(0);
   const lastTime = useRef(0);
 
+  // Helper to reset/initialize a single ambient particle
+  const resetAmbientParticle = (p: AmbientParticle, initial = false) => {
+    p.size = Math.random() * 20 + 15; // Heart bubble size
+    p.x = Math.random() * (typeof window !== "undefined" ? window.innerWidth : 1000);
+    p.y = initial 
+      ? Math.random() * (typeof window !== "undefined" ? window.innerHeight : 1000) 
+      : (typeof window !== "undefined" ? window.innerHeight : 1000) + p.size + Math.random() * 100;
+    
+    p.baseSpeedY = Math.random() * 1.5 + 0.5;
+    p.speedY = p.baseSpeedY;
+    p.speedX = 0;
+    p.swaySpeed = Math.random() * 0.03 + 0.01;
+    p.swayAmount = Math.random() * 1.5 + 0.5;
+    p.seed = Math.random() * Math.PI * 2;
+    p.alpha = Math.random() * 0.4 + 0.4; // 0.4 to 0.8 opacity
+
+    const palette = themePalettes[theme] || themePalettes.midnight;
+    p.color = palette[Math.floor(Math.random() * palette.length)];
+  };
+
   // Initialize ambient particles once
   useEffect(() => {
     ambientParticles.current = [];
-    const count = 35; // Slightly fewer particles for cleaner background
-    const palette = themePalettes[theme] || themePalettes.midnight;
+    const count = 75; // Adjust for romantic density
     for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = Math.random() * 2.2 + 1.5; // fast speed in all directions
-      ambientParticles.current.push({
-        x: Math.random() * (typeof window !== "undefined" ? window.innerWidth : 1000),
-        y: Math.random() * (typeof window !== "undefined" ? window.innerHeight : 1000),
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        size: Math.random() * 14 + 8, // 8px to 22px bubble size
-        color: palette[Math.floor(Math.random() * palette.length)],
-        alpha: Math.random() * 0.4 + 0.5, // 0.5 to 0.9 opacity
-      });
+      const p = {} as AmbientParticle;
+      resetAmbientParticle(p, true);
+      ambientParticles.current.push(p);
     }
   }, [theme]);
 
@@ -130,6 +195,30 @@ export default function HeartParticles({ scene, burstTrigger, theme = "midnight"
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
+    // Mouse and touch listeners to track cursor
+    const handleMouseMove = (e: MouseEvent) => {
+      mouse.current.x = e.clientX;
+      mouse.current.y = e.clientY;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        mouse.current.x = e.touches[0].clientX;
+        mouse.current.y = e.touches[0].clientY;
+      }
+    };
+
+    const handleMouseLeave = () => {
+      mouse.current.x = -1000;
+      mouse.current.y = -1000;
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("touchmove", handleTouchMove);
+    window.addEventListener("mouseleave", handleMouseLeave);
+    window.addEventListener("touchcancel", handleMouseLeave);
+    window.addEventListener("touchend", handleMouseLeave);
+
     let animationId: number;
 
     const updateAndDraw = (timestamp: number) => {
@@ -139,57 +228,101 @@ export default function HeartParticles({ scene, burstTrigger, theme = "midnight"
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Render Ambient Bubbles (Mode C) in all scenes automatically
+      // Render Ambient Hearts (Mode C) in all scenes automatically
       ambientParticles.current.forEach((p) => {
-        p.x += p.vx;
-        p.y += p.vy;
+        // Apply normal floating physics
+        p.y -= p.speedY;
+        
+        // Base swaying motion
+        const sway = Math.sin(p.seed) * p.swayAmount;
+        p.x += sway + p.speedX;
+        p.seed += p.swaySpeed;
 
-        // Wrap around all screen boundaries seamlessly
-        const margin = p.size + 10;
-        if (p.x < -margin) {
-          p.x = canvas.width + margin;
-        } else if (p.x > canvas.width + margin) {
-          p.x = -margin;
+        // Mouse/Touch Interaction (Dodging)
+        const dx = p.x - mouse.current.x;
+        // Adjust Y calculation slightly because the heart path is offset
+        const dy = (p.y + p.size / 2) - mouse.current.y; 
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < INTERACTION_RADIUS) {
+          const force = (INTERACTION_RADIUS - distance) / INTERACTION_RADIUS;
+          // Push bubbles away from cursor
+          p.speedX += (dx / distance) * force * 0.5;
+          p.y -= (dy / distance) * force * 0.5; 
         }
 
-        if (p.y < -margin) {
-          p.y = canvas.height + margin;
-        } else if (p.y > canvas.height + margin) {
-          p.y = -margin;
+        // Friction to gradually stop dodging and return to normal float
+        p.speedX *= 0.95;
+        p.speedY = p.baseSpeedY + (p.speedY - p.baseSpeedY) * 0.95;
+
+        // Reset bubble if it floats off the top
+        if (p.y < -p.size - 50) {
+          resetAmbientParticle(p, false);
         }
 
+        // Keep within horizontal bounds smoothly
+        if (p.x < -p.size) p.x = canvas.width + p.size;
+        if (p.x > canvas.width + p.size) p.x = -p.size;
+
+        // Draw Ambient Heart
         ctx.save();
-        ctx.globalAlpha = p.alpha;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = p.color;
+        ctx.translate(p.x, p.y);
 
-        const radius = p.size * 0.5;
+        const rgbaBase = hexToRgbaBase(p.color);
 
-        // Create radial gradient for a rich transparent 3D glass bubble effect
-        const grad = ctx.createRadialGradient(
-          p.x - radius * 0.15, p.y - radius * 0.15, radius * 0.05,
-          p.x, p.y, radius
+        // 1. Realistic 3D Edge Gradient (Fresnel Effect)
+        const gradient = ctx.createRadialGradient(
+          0, p.size * 0.3, 0, // Inner center point
+          0, p.size * 0.3, p.size * 1.1 // Outer edge
         );
-        grad.addColorStop(0, "rgba(255, 255, 255, 0.45)");
-        grad.addColorStop(0.3, p.color + "1a"); // very transparent middle (10% opacity)
-        grad.addColorStop(0.85, p.color + "44"); // glowing theme color (27% opacity)
-        grad.addColorStop(1, p.color + "99"); // outer border color (60% opacity)
+        
+        gradient.addColorStop(0, `rgba(255, 255, 255, 0)`); // Completely clear center
+        gradient.addColorStop(0.5, `rgba(255, 255, 255, ${p.alpha * 0.05})`); // Soft inner clarity
+        gradient.addColorStop(0.85, `${rgbaBase}${p.alpha * 0.8})`); // Color gathers at the edge
+        gradient.addColorStop(1, `rgba(255, 255, 255, ${p.alpha + 0.3})`); // Bright rim lighting
 
-        ctx.fillStyle = grad;
+        ctx.fillStyle = gradient;
+        
+        // Add a soft glow to the outside of the bubble
+        ctx.shadowColor = rgbaBase + `${p.alpha * 0.6})`;
+        ctx.shadowBlur = 10;
+        
+        // Draw the main heart path
+        drawHeart(ctx, 0, 0, p.size);
+        ctx.fill();
+        
+        // 2. Physical Glass Surface Stroke
+        ctx.strokeStyle = `rgba(255, 255, 255, ${p.alpha + 0.4})`;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        
+        // Turn off shadow blur for the crisp internal glints
+        ctx.shadowBlur = 0;
+
+        // 3. Specular Highlights (Volume & 3D Lighting)
+        // Main Highlight: Top Left Lobe (Curved to follow the volume)
         ctx.beginPath();
-        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
-        ctx.closePath();
+        ctx.ellipse(-p.size * 0.22, p.size * 0.18, p.size * 0.12, p.size * 0.05, -Math.PI / 4, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha + 0.5})`;
         ctx.fill();
 
-        // Shiny glass white stroke core
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.45)";
-        ctx.lineWidth = 1;
-        ctx.stroke();
-
-        // Specular highlight spot (makes it feel 3D glossy)
+        // Secondary Highlight: Top Right Lobe (Smaller and softer)
         ctx.beginPath();
-        ctx.arc(p.x - radius * 0.2, p.y - radius * 0.2, radius * 0.12, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+        ctx.ellipse(p.size * 0.22, p.size * 0.18, p.size * 0.08, p.size * 0.03, Math.PI / 4, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha + 0.1})`;
+        ctx.fill();
+
+        // Ambient Bounce Light: Bottom Tip
+        const bottomBounce = ctx.createRadialGradient(
+          0, p.size * 0.85, 0,
+          0, p.size * 0.85, p.size * 0.25
+        );
+        bottomBounce.addColorStop(0, `${rgbaBase}${p.alpha + 0.1})`);
+        bottomBounce.addColorStop(1, `rgba(255, 255, 255, 0)`);
+        
+        ctx.beginPath();
+        ctx.ellipse(0, p.size * 0.85, p.size * 0.15, p.size * 0.08, 0, 0, Math.PI * 2);
+        ctx.fillStyle = bottomBounce;
         ctx.fill();
 
         ctx.restore();
@@ -213,52 +346,75 @@ export default function HeartParticles({ scene, burstTrigger, theme = "midnight"
 
           if (p.elapsedTime >= 800) {
             p.phase = "explode";
-            // Transition immediately to an elegant outward drift
             const angle = Math.random() * Math.PI * 2;
             const speed = Math.random() * 3.5 + 1.5;
             p.vx = Math.cos(angle) * speed;
-            // Drift slightly upwards as they explode
-            p.vy = Math.sin(angle) * speed - 0.6;
+            p.vy = Math.sin(angle) * speed - 0.6; // upward drift
           }
         } else if (p.phase === "explode") {
           p.x += p.vx;
           p.y += p.vy;
-          p.alpha -= 0.025; // Fades out slightly quicker for performance
+          p.alpha -= 0.025;
           if (p.alpha <= 0) return false;
         }
 
+        // Draw Burst Heart
         ctx.save();
-        ctx.globalAlpha = p.alpha;
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = p.color;
+        ctx.translate(p.x, p.y);
 
-        const radius = p.size * 0.5;
+        const rgbaBase = hexToRgbaBase(p.color);
 
-        // Create radial gradient for a rich transparent 3D glass bubble effect
-        const grad = ctx.createRadialGradient(
-          p.x - radius * 0.15, p.y - radius * 0.15, radius * 0.05,
-          p.x, p.y, radius
+        // 1. Realistic 3D Edge Gradient (Fresnel Effect)
+        const gradient = ctx.createRadialGradient(
+          0, p.size * 0.3, 0,
+          0, p.size * 0.3, p.size * 1.1
         );
-        grad.addColorStop(0, "rgba(255, 255, 255, 0.45)");
-        grad.addColorStop(0.3, p.color + "1a"); // very transparent middle (10% opacity)
-        grad.addColorStop(0.85, p.color + "44"); // glowing theme color (27% opacity)
-        grad.addColorStop(1, p.color + "99"); // outer border color (60% opacity)
+        
+        gradient.addColorStop(0, `rgba(255, 255, 255, 0)`);
+        gradient.addColorStop(0.5, `rgba(255, 255, 255, ${p.alpha * 0.05})`);
+        gradient.addColorStop(0.85, `${rgbaBase}${p.alpha * 0.8})`);
+        gradient.addColorStop(1, `rgba(255, 255, 255, ${p.alpha + 0.3})`);
 
-        ctx.fillStyle = grad;
+        ctx.fillStyle = gradient;
+        
+        // Add a soft glow to the outside of the bubble
+        ctx.shadowColor = rgbaBase + `${p.alpha * 0.6})`;
+        ctx.shadowBlur = 10;
+        
+        // Draw the main heart path
+        drawHeart(ctx, 0, 0, p.size);
+        ctx.fill();
+        
+        // 2. Physical Glass Surface Stroke
+        ctx.strokeStyle = `rgba(255, 255, 255, ${p.alpha + 0.4})`;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        
+        // Turn off shadow blur for the crisp internal glints
+        ctx.shadowBlur = 0;
+
+        // 3. Specular Highlights (Volume & 3D Lighting)
         ctx.beginPath();
-        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
-        ctx.closePath();
+        ctx.ellipse(-p.size * 0.22, p.size * 0.18, p.size * 0.12, p.size * 0.05, -Math.PI / 4, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha + 0.5})`;
         ctx.fill();
 
-        // White stroke overlay core for a neon burst glow
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.55)";
-        ctx.lineWidth = 1.2;
-        ctx.stroke();
-
-        // Specular highlight spot (makes it feel 3D glossy)
         ctx.beginPath();
-        ctx.arc(p.x - radius * 0.2, p.y - radius * 0.2, radius * 0.12, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+        ctx.ellipse(p.size * 0.22, p.size * 0.18, p.size * 0.08, p.size * 0.03, Math.PI / 4, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha + 0.1})`;
+        ctx.fill();
+
+        // Ambient Bounce Light: Bottom Tip
+        const bottomBounce = ctx.createRadialGradient(
+          0, p.size * 0.85, 0,
+          0, p.size * 0.85, p.size * 0.25
+        );
+        bottomBounce.addColorStop(0, `${rgbaBase}${p.alpha + 0.1})`);
+        bottomBounce.addColorStop(1, `rgba(255, 255, 255, 0)`);
+        
+        ctx.beginPath();
+        ctx.ellipse(0, p.size * 0.85, p.size * 0.15, p.size * 0.08, 0, 0, Math.PI * 2);
+        ctx.fillStyle = bottomBounce;
         ctx.fill();
 
         ctx.restore();
@@ -284,6 +440,11 @@ export default function HeartParticles({ scene, burstTrigger, theme = "midnight"
 
     return () => {
       window.removeEventListener("resize", resizeCanvas);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("mouseleave", handleMouseLeave);
+      window.removeEventListener("touchcancel", handleMouseLeave);
+      window.removeEventListener("touchend", handleMouseLeave);
       cancelAnimationFrame(animationId);
     };
   }, [scene]);
