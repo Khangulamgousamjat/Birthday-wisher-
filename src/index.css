@@ -73,10 +73,13 @@ body {
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-image: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+  background-image: linear-gradient(135deg, var(--theme-accent) 0%, var(--theme-primary) 100%);
 }
 
 :root {
+  --theme-primary: #6d28d9;
+  --theme-accent: #a78bfa;
+  --theme-particle: #c084fc;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -320,5 +323,51 @@ body {
     box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.07) inset !important;
     transition: background-color 5000s ease-in-out 0s;
     caret-color: #ffffff;
+  }
+
+  @keyframes bgShimmer {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+
+  @keyframes flicker {
+    0%, 100% { opacity: 0.8; transform: scale(1); }
+    30% { opacity: 0.7; transform: scale(0.95); }
+    70% { opacity: 1; transform: scale(1.1); }
+  }
+
+  @keyframes smokeRise {
+    0% { transform: translateY(0) scale(1); opacity: 0.8; }
+    50% { transform: translateY(-10px) scale(1.2); opacity: 0.4; }
+    100% { transform: translateY(-20px) scale(0.8); opacity: 0; }
+  }
+
+  .gold-shimmer {
+    background: linear-gradient(90deg, #b8860b, #ffd700, #b8860b);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: bgShimmer 3s linear infinite;
+  }
+
+  .animate-flicker {
+    animation: flicker 0.3s ease-in-out infinite alternate;
+  }
+
+  .animate-smoke {
+    animation: smokeRise 0.8s ease-out forwards;
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
   }
 }

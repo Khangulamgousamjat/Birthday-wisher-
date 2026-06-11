@@ -1,6 +1,10 @@
+import React, { Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
-import Surprise from "./pages/Surprise";
+import { Sparkles } from "lucide-react";
+
+// Lazy load the recipient experience page to ensure creator side loads instantly
+const Surprise = React.lazy(() => import("./pages/Surprise"));
 
 function App() {
   return (
@@ -22,7 +26,19 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/surprise/:id" element={<Surprise />} />
+        <Route 
+          path="/surprise/:id" 
+          element={
+            <Suspense fallback={
+              <div className="min-h-screen bg-black flex items-center justify-center text-white/50">
+                <Sparkles className="animate-spin w-8 h-8 mr-2 text-purple-400" />
+                Loading your magic...
+              </div>
+            }>
+              <Surprise />
+            </Suspense>
+          } 
+        />
       </Routes>
     </div>
   );

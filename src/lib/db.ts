@@ -1,5 +1,5 @@
 import { db, storage } from './firebase';
-import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, deleteDoc, updateDoc, increment } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export type SurpriseData = {
@@ -10,6 +10,8 @@ export type SurpriseData = {
   image_path?: string; // Stored as direct Firebase download URL
   music_path?: string; // Stored as direct Firebase download URL
   created_at: string;
+  view_count?: number;
+  reactions?: number;
 };
 
 // Helper function to enforce a timeout on asynchronous tasks
@@ -79,6 +81,8 @@ export async function getSurpriseData(short_id: string): Promise<SurpriseData | 
       image_path: data.image_path || undefined,
       music_path: data.music_path || undefined,
       created_at: data.created_at,
+      view_count: data.view_count || 0,
+      reactions: data.reactions || 0,
     };
   } catch (error: any) {
     console.error("Error fetching surprise data from Firestore:", error);
@@ -114,7 +118,9 @@ export async function saveSurpriseData(record: {
         message: record.message,
         image_path: image_path || null,
         music_path: music_path || null,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        view_count: 0,
+        reactions: 0
       }),
       10000,
       "Database save timed out. Please check your Firestore database setup and internet connection."
@@ -125,5 +131,27 @@ export async function saveSurpriseData(record: {
   } catch (err: any) {
     console.error("Failed to save surprise data to Firestore:", err);
     throw err;
+  }
+}
+
+export async function incrementViewCount(short_id: string): Promise<void> {
+  try {
+    const docRef = doc(db, 'surprises', short_id);
+    await updateDoc(docRef, {
+      view_count: increment(1)
+    });
+  } catch (error) {
+    console.error("Error incrementing view count:", error);
+  }
+}
+
+export async function incrementReactions(short_id: string): Promise<void> {
+  try {
+    const docRef = doc(db, 'surprises', short_id);
+    await updateDoc(docRef, {
+      reactions: increment(1)
+    });
+  } catch (error) {
+    console.error("Error incrementing reactions:", error);
   }
 }

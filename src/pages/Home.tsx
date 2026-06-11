@@ -3,8 +3,10 @@ import SpotlightCard from "@/components/SpotlightCard";
 import { Button } from "@/components/ui/Button";
 import { MouseTrail } from "@/components/effects/MouseTrail";
 import { motion } from "framer-motion";
-import { Copy, Sparkles, ArrowRight, CheckCircle2, Play, Pause, Music } from "lucide-react";
+import { Copy, Sparkles, ArrowRight, CheckCircle2, Play, Pause, Music, User, Mail, Image as ImageIcon, Music2, Eye, Heart } from "lucide-react";
 import { saveSurpriseData } from "@/lib/db";
+import { db } from "@/lib/firebase";
+import { doc, onSnapshot } from "firebase/firestore";
 
 export default function Home() {
   const [name, setName] = useState("");
@@ -23,6 +25,32 @@ export default function Home() {
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const lastBlobUrl = useRef<string | null>(null);
+
+  // Upgrade States
+  const [theme, setTheme] = useState("midnight");
+  const [viewCount, setViewCount] = useState<number | null>(null);
+  const [reactionsCount, setReactionsCount] = useState<number | null>(null);
+
+  // Real-time View & Reactions listener
+  useEffect(() => {
+    if (!generatedLink) {
+      setViewCount(null);
+      setReactionsCount(null);
+      return;
+    }
+    const id = generatedLink.split("/").pop();
+    if (!id) return;
+
+    const docRef = doc(db, 'surprises', id);
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setViewCount(data.view_count || 0);
+        setReactionsCount(data.reactions || 0);
+      }
+    });
+    return () => unsubscribe();
+  }, [generatedLink]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -159,6 +187,7 @@ export default function Home() {
         body: message,
         finaleText: finaleText.trim() || "HAPPY BIRTHDAY! 🎂",
         selectedMusic: selectedMusic,
+        theme: theme,
         // Large files are now handled via Storage buckets, not this JSON
       };
 
@@ -261,8 +290,66 @@ export default function Home() {
            initial={{ opacity: 0, scale: 0.95 }}
            animate={{ opacity: 1, scale: 1 }}
            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+           className="w-full flex flex-col items-center"
         >
-          <SpotlightCard className="p-8 md:p-10 premium-glass-card relative group">
+          {/* Progress Bar */}
+          {!generatedLink && (
+            <div className="w-full px-4 mb-6 relative">
+              <div className="relative flex items-center justify-between w-full max-w-md mx-auto">
+                {/* Connecting Line */}
+                <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-0.5 bg-white/10 z-0">
+                  {/* Active Line Fill */}
+                  <div 
+                    className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500 ease-out"
+                    style={{ 
+                      width: `${
+                        (imageBase64 !== "" || selectedMusic !== "/Happy Birthday Song.mp3" || musicFile !== null) ? "100%" : 
+                        (message.trim().length > 0) ? "66.6%" : 
+                        (name.trim().length > 0) ? "33.3%" : "0%"
+                      }` 
+                    }}
+                  />
+                </div>
+
+                {/* Nodes */}
+                {[
+                  { number: 1, label: "Name", icon: <User className="h-4 w-4" />, complete: name.trim().length > 0 },
+                  { number: 2, label: "Message", icon: <Mail className="h-4 w-4" />, complete: message.trim().length > 0 || imageBase64 !== "" || selectedMusic !== "/Happy Birthday Song.mp3" || musicFile !== null },
+                  { number: 3, label: "Photo", icon: <ImageIcon className="h-4 w-4" />, complete: imageBase64 !== "" || selectedMusic !== "/Happy Birthday Song.mp3" || musicFile !== null },
+                  { number: 4, label: "Music", icon: <Music2 className="h-4 w-4" />, complete: true },
+                ].map((s, i) => {
+                  const isActive = !s.complete && (
+                    i === 0 || 
+                    (i === 1 && name.trim().length > 0) || 
+                    (i === 2 && (message.trim().length > 0 || name.trim().length > 0)) ||
+                    (i === 3 && (imageBase64 !== "" || message.trim().length > 0))
+                  );
+                  return (
+                    <div key={s.number} className="relative z-10 flex flex-col items-center gap-1.5">
+                      <div 
+                        className={`w-9 h-9 rounded-full flex items-center justify-center border transition-all duration-300 ${
+                          s.complete 
+                            ? "bg-gradient-to-tr from-purple-500 to-pink-500 border-transparent text-white shadow-[0_0_10px_rgba(168,85,247,0.4)]" 
+                            : isActive 
+                            ? "bg-black border-purple-500 text-purple-400 ring-4 ring-purple-500/20" 
+                            : "bg-black border-white/15 text-white/40"
+                        }`}
+                      >
+                        {s.icon}
+                      </div>
+                      <span className={`text-[10px] font-medium tracking-wider uppercase ${
+                        s.complete ? "text-white/80" : isActive ? "text-purple-400" : "text-white/30"
+                      }`}>
+                        {s.label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <SpotlightCard className="p-8 md:p-10 premium-glass-card relative group w-full">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
             
             {!generatedLink ? (
@@ -313,6 +400,45 @@ export default function Home() {
                     autoComplete="off"
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all font-medium text-sm"
                   />
+                </div>
+ 
+                {/* Theme Selector */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-white/80 ml-1">
+                    Choose a vibe
+                  </label>
+                  <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-xl p-3 justify-around">
+                    {[
+                      { key: "midnight", name: "Midnight Purple", bg: "bg-purple-600" },
+                      { key: "rosegold", name: "Rose Gold", bg: "bg-rose-600" },
+                      { key: "ocean", name: "Ocean Blue", bg: "bg-blue-600" },
+                      { key: "emerald", name: "Emerald", bg: "bg-emerald-600" },
+                    ].map((t) => {
+                      const isSelected = theme === t.key;
+                      return (
+                        <button
+                          key={t.key}
+                          type="button"
+                          onClick={() => setTheme(t.key)}
+                          className="group relative flex flex-col items-center gap-1 focus:outline-none"
+                        >
+                          <div 
+                            className={`w-9 h-9 rounded-full ${t.bg} transition-all duration-300 cursor-pointer ${
+                              isSelected 
+                                ? "ring-2 ring-white ring-offset-2 ring-offset-black scale-110 shadow-lg shadow-white/10" 
+                                : "opacity-60 hover:opacity-100 hover:scale-105"
+                            }`}
+                            title={t.name}
+                          />
+                          <span className={`text-[9px] font-medium transition-all ${
+                            isSelected ? "text-white font-semibold" : "text-white/40"
+                          }`}>
+                            {t.key.charAt(0).toUpperCase() + t.key.slice(1)}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -474,6 +600,24 @@ export default function Home() {
                     {copied ? <CheckCircle2 className="h-5 w-5 text-green-400" /> : <Copy className="h-5 w-5" />}
                   </button>
                 </div>
+
+                {viewCount !== null && (
+                  <div className="text-white/60 text-xs font-medium mt-4 flex items-center justify-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 w-fit mx-auto shadow-sm">
+                    <span className="flex items-center gap-1 text-white/50">
+                      <Eye className="h-3.5 w-3.5" />
+                      <span>Opened {viewCount} {viewCount === 1 ? "time" : "times"}</span>
+                    </span>
+                    {reactionsCount !== null && reactionsCount > 0 && (
+                      <>
+                        <span className="text-white/20">•</span>
+                        <span className="flex items-center gap-1 text-pink-400">
+                          <Heart className="h-3.5 w-3.5 fill-pink-500/80 stroke-pink-500 animate-pulse" />
+                          <span>{reactionsCount} {reactionsCount === 1 ? "love" : "loves"}</span>
+                        </span>
+                      </>
+                    )}
+                  </div>
+                )}
                 
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                   <Button 
@@ -487,6 +631,9 @@ export default function Home() {
                       setMusicFile(null);
                       setMusicError("");
                       setError("");
+                      setTheme("midnight");
+                      setViewCount(null);
+                      setReactionsCount(null);
                     }}
                     className="w-full"
                   >
@@ -511,37 +658,15 @@ export default function Home() {
       
       {/* Footer */}
       <footer className="w-full flex flex-col items-center gap-3 text-sm z-20 pb-6 pt-4">
-        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 px-5 py-2.5 rounded-full border border-white/5 bg-white/5 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.2)]">
-          <span className="flex items-center gap-1.5 text-white/50 text-xs font-light">
-            <span>&copy; {new Date().getFullYear()} Digital Surprise Gift</span>
-            <span className="hidden sm:inline text-white/20">•</span>
+        <div className="flex items-center gap-1.5 px-5 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.3)] hover:bg-white/10 hover:border-white/20 transition-all duration-300 group">
+          <span className="text-[10px] uppercase tracking-[0.15em] text-white/40 font-medium select-none">
+            made by
           </span>
-          
-          <span className="text-xs font-medium text-white/60 flex items-center gap-1">
-            Made with 
-            <motion.span 
-              animate={{ scale: [1, 1.25, 1] }} 
-              transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
-              className="text-red-500 mx-0.5 inline-block"
-            >
-              ❤️
-            </motion.span> 
-            by 
-            <a 
-              href="mailto:gousk2004@gmail.com" 
-              className="text-gradient-gold hover:opacity-80 transition-all font-semibold ml-1 cursor-pointer tracking-wide"
-            >
-              Gous Khan
-            </a>
-          </span>
-
-          <span className="hidden sm:inline text-white/20">•</span>
-          
           <a 
             href="mailto:gousk2004@gmail.com" 
-            className="text-white/40 hover:text-white/80 hover:bg-white/5 transition-all text-[11px] font-medium border border-white/10 rounded-full px-3 py-0.5 bg-black/20"
+            className="text-gradient-gold font-bold tracking-wider hover:opacity-80 transition-all cursor-pointer text-xs md:text-sm drop-shadow-[0_0_8px_rgba(251,191,36,0.35)]"
           >
-            Contact
+            Gous Khan
           </a>
         </div>
       </footer>
