@@ -589,7 +589,7 @@ export default function Home() {
                         type="file"
                         accept="audio/*"
                         onChange={handleMusicUpload}
-                        className="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-2 text-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-purple-500/20 file:text-purple-300 hover:file:bg-purple-500/30 transition-all text-sm cursor-pointer"
+                        className="w-full bg-white/[0.04] backdrop-blur-sm border border-white/10 rounded-xl px-4 py-2 text-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-purple-500/20 file:text-purple-300 hover:file:bg-purple-500/30 transition-all text-sm cursor-pointer"
                       />
                       {musicError && <p className="text-red-400 text-xs mt-1 ml-1">{musicError}</p>}
                     </motion.div>
