@@ -58,12 +58,12 @@ export default function Surprise() {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
         <h1 className="text-2xl mb-4 text-white/80">Oops! This magic link doesn't exist or has expired.</h1>
-        <button
+        <Button
           onClick={() => navigate("/")}
-          className="premium-button text-sm px-6 py-2.5 shadow-md"
+          className="text-sm font-semibold select-none"
         >
           Create One
-        </button>
+        </Button>
       </div>
     );
   }
@@ -576,12 +576,13 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                     animate={{ opacity: 1, scale: 1 }}
                     className="mt-12"
                   >
-                    <button
+                    <Button
                       onClick={() => setScene(4)}
-                      className="premium-button mx-auto text-lg px-10 py-4 shadow-xl shadow-pink-500/10"
+                      containerClassName="mx-auto"
+                      className="text-lg font-semibold select-none"
                     >
                       Continue Magic
-                    </button>
+                    </Button>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -684,13 +685,14 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                 transition={{ delay: 1.5, type: "spring", stiffness: 200, damping: 15 }}
                 className="my-4 relative z-20 flex justify-center w-full"
               >
-                <button
+                <Button
                   onClick={() => setScene(6)}
-                  className="premium-button text-sm px-8 py-3.5 shadow-[0_4px_20px_rgba(124,58,237,0.3)]"
+                  containerClassName="mx-auto"
+                  className="text-sm font-semibold select-none"
                 >
                   <span>Continue to Cake 🎂</span>
-                  <ArrowRight className="w-4 h-4 ml-1.5" />
-                </button>
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
               </motion.div>
             </motion.div>
           )}
@@ -817,15 +819,10 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                   </h1>
 
                   <div className="flex flex-wrap justify-center gap-4 pt-8">
-                    <motion.button
+                    <Button
                       onClick={handleSendReaction}
                       disabled={hasSentReaction}
-                      whileTap={{ scale: 0.95 }}
-                      className={`px-6 py-3 rounded-full font-semibold flex items-center justify-center gap-2 border backdrop-blur-md transition-all text-sm shadow-md active:scale-98 select-none ${
-                        hasSentReaction 
-                          ? "bg-white/5 border-white/10 text-white/40 cursor-not-allowed" 
-                          : "bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/30 text-white shadow-lg active:scale-105"
-                      }`}
+                      className="text-sm font-semibold select-none"
                     >
                       {hasSentReaction ? (
                         <>
@@ -838,35 +835,35 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                           <span>Send love back</span>
                         </>
                       )}
-                    </motion.button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={shareLink}
-                      className="premium-button text-sm px-6 py-3 shadow-[0_4px_20px_rgba(124,58,237,0.3)] flex items-center justify-center gap-1.5"
+                      className="text-sm font-semibold select-none"
                     >
                       <Share2 className="w-4 h-4" />
                       <span>Share This Moment</span>
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={copyLink}
-                      className="px-6 py-3 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white hover:border-white/20 transition-all font-semibold text-sm flex items-center justify-center gap-1.5 shadow-md active:scale-98 select-none"
+                      className="text-sm font-semibold select-none"
                     >
                       {copied ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
                       <span>{copied ? 'Copied!' : 'Copy Link'}</span>
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={replay}
-                      className="px-6 py-3 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white hover:border-white/20 transition-all font-semibold text-sm flex items-center justify-center gap-1.5 shadow-md active:scale-98 select-none"
+                      className="text-sm font-semibold select-none"
                     >
                       <RefreshCw className="w-4 h-4" />
                       <span>Replay Surprise</span>
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => navigate("/")}
-                      className="premium-button text-sm px-6 py-3 shadow-[0_4px_20px_rgba(124,58,237,0.3)] flex items-center justify-center gap-1.5"
+                      className="text-sm font-semibold select-none"
                     >
                       <Sparkles className="w-4 h-4" />
                       <span>Create Your Own</span>
-                    </button>
+                    </Button>
                   </div>
                 </motion.div>
               )}

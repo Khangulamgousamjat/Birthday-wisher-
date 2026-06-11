@@ -614,11 +614,11 @@ export default function Home() {
                   </motion.div>
                 )}
 
-                <button 
+                <Button 
                   type="submit" 
                   disabled={isGenerating || !name.trim()} 
                   onClick={handleRipple}
-                  className="cta-button mt-4"
+                  containerClassName="mt-4 w-full"
                 >
                   {isGenerating ? (
                     <span className="flex flex-col items-center justify-center gap-1.5 py-1">
@@ -631,10 +631,10 @@ export default function Home() {
                   ) : (
                     <span className="flex items-center justify-center space-x-2 w-full">
                       <span>Generate Magic Link</span>
-                      <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                      <ArrowRight className="h-5 w-5 transition-transform" />
                     </span>
                   )}
-                </button>
+                </Button>
               </form>
             ) : (
               <motion.div 
@@ -661,9 +661,10 @@ export default function Home() {
                     <p className="text-sm text-white/90 truncate font-mono select-all flex-1 text-left mr-2">
                       {generatedLink}
                     </p>
-                    <button 
+                    <Button 
                       onClick={copyToClipboard}
-                      className="px-5 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all duration-300 flex-shrink-0"
+                      className="py-2.5 px-5 text-xs font-semibold flex items-center gap-1.5"
+                      containerClassName="flex-shrink-0"
                     >
                       {copied ? (
                         <>
@@ -676,7 +677,7 @@ export default function Home() {
                           <span>Copy</span>
                         </>
                       )}
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -699,7 +700,7 @@ export default function Home() {
                 )}
                 
                 <div className="flex flex-col sm:flex-row gap-4 pt-4 w-full">
-                  <button 
+                  <Button 
                     onClick={() => { 
                       setGeneratedLink(""); 
                       setName(""); 
@@ -717,20 +718,24 @@ export default function Home() {
                       setViewCount(null);
                       setReactionsCount(null);
                     }}
-                    className="w-full sm:flex-1 px-6 py-3 rounded-full border border-white/10 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white hover:border-white/20 transition-all font-semibold text-sm text-center shadow-md active:scale-98 select-none"
+                    containerClassName="w-full sm:flex-1"
+                    className="w-full justify-center text-sm font-semibold select-none"
                   >
                     Create Another
-                  </button>
+                  </Button>
                   <a 
                     href={generatedLink} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="w-full sm:flex-1"
                   >
-                    <button className="cta-button py-3 text-sm flex items-center justify-center gap-1.5 shadow-[0_4px_20px_rgba(124,58,237,0.25)] hover:shadow-[0_8px_30px_rgba(124,58,237,0.4)]">
+                    <Button 
+                      containerClassName="w-full"
+                      className="w-full justify-center text-sm font-semibold"
+                    >
                       <span>Preview</span>
                       <ArrowRight className="w-4 h-4" />
-                    </button>
+                    </Button>
                   </a>
                 </div>
               </motion.div>
