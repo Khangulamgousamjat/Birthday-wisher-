@@ -510,17 +510,36 @@ export default function Home() {
       </div>
       
       {/* Footer */}
-      <footer className="w-full flex flex-col items-center gap-1.5 text-white/40 text-sm font-light z-20 pb-2 md:pb-4">
-        <p>
-          Made by <span className="font-medium text-white/70">Gous Khan</span>
-        </p>
-        <p className="text-xs">
-          &copy; {new Date().getFullYear()} Digital Surprise Gift
-        </p>
-        <div className="mt-1">
+      <footer className="w-full flex flex-col items-center gap-3 text-sm z-20 pb-6 pt-4">
+        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 px-5 py-2.5 rounded-full border border-white/5 bg-white/5 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.2)]">
+          <span className="flex items-center gap-1.5 text-white/50 text-xs font-light">
+            <span>&copy; {new Date().getFullYear()} Digital Surprise Gift</span>
+            <span className="hidden sm:inline text-white/20">•</span>
+          </span>
+          
+          <span className="text-xs font-medium text-white/60 flex items-center gap-1">
+            Made with 
+            <motion.span 
+              animate={{ scale: [1, 1.25, 1] }} 
+              transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+              className="text-red-500 mx-0.5 inline-block"
+            >
+              ❤️
+            </motion.span> 
+            by 
+            <a 
+              href="mailto:gousk2004@gmail.com" 
+              className="text-gradient-gold hover:opacity-80 transition-all font-semibold ml-1 cursor-pointer tracking-wide"
+            >
+              Gous Khan
+            </a>
+          </span>
+
+          <span className="hidden sm:inline text-white/20">•</span>
+          
           <a 
             href="mailto:gousk2004@gmail.com" 
-            className="text-white/40 hover:text-white/80 transition-colors text-xs flex items-center gap-1 border border-white/10 rounded-full px-3 py-1 bg-white/5 hover:bg-white/10"
+            className="text-white/40 hover:text-white/80 hover:bg-white/5 transition-all text-[11px] font-medium border border-white/10 rounded-full px-3 py-0.5 bg-black/20"
           >
             Contact
           </a>
