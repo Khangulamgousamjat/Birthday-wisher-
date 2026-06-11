@@ -677,39 +677,16 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                 </h2>
               </div>
 
-              {/* Floating Reaction Button & Continue to Cake */}
+              {/* Continue to Cake Button */}
               <motion.div
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.5, type: "spring", stiffness: 200, damping: 15 }}
-                className="my-2 flex flex-col sm:flex-row items-center gap-4 relative z-20"
+                className="my-4 relative z-20 flex justify-center w-full"
               >
-                <motion.button
-                  onClick={handleSendReaction}
-                  disabled={hasSentReaction}
-                  whileTap={{ scale: 0.95 }}
-                  className={`px-6 py-3 rounded-full font-semibold flex items-center gap-2 border backdrop-blur-md transition-all ${
-                    hasSentReaction 
-                      ? "bg-white/5 border-white/10 text-white/40 cursor-not-allowed" 
-                      : "bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/30 text-white shadow-lg active:scale-105"
-                  }`}
-                >
-                  {hasSentReaction ? (
-                    <>
-                      <span>💌</span>
-                      <span>Love sent!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Heart className="h-4 w-4 text-rose-500 fill-rose-500 animate-pulse" />
-                      <span>Send love back</span>
-                    </>
-                  )}
-                </motion.button>
-
                 <button
                   onClick={() => setScene(6)}
-                  className="premium-button text-sm px-6 py-3 shadow-[0_4px_20px_rgba(124,58,237,0.3)]"
+                  className="premium-button text-sm px-8 py-3.5 shadow-[0_4px_20px_rgba(124,58,237,0.3)]"
                 >
                   <span>Continue to Cake 🎂</span>
                   <ArrowRight className="w-4 h-4 ml-1.5" />
@@ -840,6 +817,28 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                   </h1>
 
                   <div className="flex flex-wrap justify-center gap-4 pt-8">
+                    <motion.button
+                      onClick={handleSendReaction}
+                      disabled={hasSentReaction}
+                      whileTap={{ scale: 0.95 }}
+                      className={`px-6 py-3 rounded-full font-semibold flex items-center justify-center gap-2 border backdrop-blur-md transition-all text-sm shadow-md active:scale-98 select-none ${
+                        hasSentReaction 
+                          ? "bg-white/5 border-white/10 text-white/40 cursor-not-allowed" 
+                          : "bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/30 text-white shadow-lg active:scale-105"
+                      }`}
+                    >
+                      {hasSentReaction ? (
+                        <>
+                          <span>💌</span>
+                          <span>Love sent!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Heart className="h-4 w-4 text-rose-500 fill-rose-500 animate-pulse" />
+                          <span>Send love back</span>
+                        </>
+                      )}
+                    </motion.button>
                     <button
                       onClick={shareLink}
                       className="premium-button text-sm px-6 py-3 shadow-[0_4px_20px_rgba(124,58,237,0.3)] flex items-center justify-center gap-1.5"

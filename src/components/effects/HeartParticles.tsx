@@ -25,6 +25,7 @@ interface BurstParticle {
 interface AmbientParticle {
   x: number;
   y: number;
+  vx: number;
   vy: number;
   size: number;
   color: string;
@@ -38,38 +39,7 @@ const themePalettes: Record<string, string[]> = {
   emerald: ["#34d399", "#22c55e", "#6ee7b7", "#a7f3d0", "#4ade80"],
 };
 
-function drawHeartPath(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
-  ctx.beginPath();
-  // Use a smaller width ratio (0.7) relative to size height to make it a slim, real heart
-  const widthScale = 0.7;
-  const topCleftY = y - size * 0.25;
-  ctx.moveTo(x, topCleftY);
-  
-  // Left half of the heart
-  ctx.bezierCurveTo(
-    x - size * 0.4 * widthScale, y - size * 0.65, 
-    x - size * widthScale, y - size * 0.2, 
-    x - size * widthScale, y + size * 0.15
-  );
-  ctx.bezierCurveTo(
-    x - size * widthScale, y + size * 0.5, 
-    x - size * 0.45 * widthScale, y + size * 0.8, 
-    x, y + size * 1.05
-  );
-  
-  // Right half of the heart
-  ctx.bezierCurveTo(
-    x + size * 0.45 * widthScale, y + size * 0.8, 
-    x + size * widthScale, y + size * 0.5, 
-    x + size * widthScale, y + size * 0.15
-  );
-  ctx.bezierCurveTo(
-    x + size * widthScale, y - size * 0.2, 
-    x + size * 0.4 * widthScale, y - size * 0.65, 
-    x, topCleftY
-  );
-  ctx.closePath();
-}
+// Custom Bezier heart drawing replaced with circle bubbles
 
 export default function HeartParticles({ scene, burstTrigger, theme = "midnight" }: HeartParticlesProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -85,16 +55,19 @@ export default function HeartParticles({ scene, burstTrigger, theme = "midnight"
   // Initialize ambient particles once
   useEffect(() => {
     ambientParticles.current = [];
-    const count = 45; // Decreased count for a cleaner background
+    const count = 35; // Slightly fewer particles for cleaner background
     const palette = themePalettes[theme] || themePalettes.midnight;
     for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 2.2 + 1.5; // fast speed in all directions
       ambientParticles.current.push({
         x: Math.random() * (typeof window !== "undefined" ? window.innerWidth : 1000),
         y: Math.random() * (typeof window !== "undefined" ? window.innerHeight : 1000),
-        vy: -(Math.random() * 1.6 + 1.2), // moving faster
-        size: Math.random() * 14 + 10, // 10px to 24px sizes
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: Math.random() * 14 + 8, // 8px to 22px bubble size
         color: palette[Math.floor(Math.random() * palette.length)],
-        alpha: Math.random() * 0.45 + 0.45, // 0.45 to 0.90 opacity
+        alpha: Math.random() * 0.4 + 0.5, // 0.5 to 0.9 opacity
       });
     }
   }, [theme]);
@@ -166,28 +139,39 @@ export default function HeartParticles({ scene, burstTrigger, theme = "midnight"
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Render Ambient Hearts (Mode C) in all scenes automatically
+      // Render Ambient Bubbles (Mode C) in all scenes automatically
       ambientParticles.current.forEach((p) => {
+        p.x += p.vx;
         p.y += p.vy;
-        // Sway back and forth using a sine wave so they don't just move straight up
-        p.x += Math.sin(p.y * 0.025 + p.size) * 0.5;
 
-        if (p.y < -20) {
-          p.y = canvas.height + 20;
-          p.x = Math.random() * canvas.width;
+        // Wrap around all screen boundaries seamlessly
+        const margin = p.size + 10;
+        if (p.x < -margin) {
+          p.x = canvas.width + margin;
+        } else if (p.x > canvas.width + margin) {
+          p.x = -margin;
         }
+
+        if (p.y < -margin) {
+          p.y = canvas.height + margin;
+        } else if (p.y > canvas.height + margin) {
+          p.y = -margin;
+        }
+
         ctx.save();
         ctx.globalAlpha = p.alpha;
         ctx.shadowBlur = 15;
         ctx.shadowColor = p.color;
         ctx.fillStyle = p.color;
         
-        // Draw the custom Bezier heart path
-        drawHeartPath(ctx, p.x, p.y, p.size * 0.5);
+        // Draw custom glowing bubble (circle)
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * 0.5, 0, Math.PI * 2);
+        ctx.closePath();
         ctx.fill();
         
-        // Add a subtle glowing white stroke core for a neon look
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+        // Add a glowing white stroke core for a realistic neon bubble look
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.55)";
         ctx.lineWidth = 1;
         ctx.stroke();
         
@@ -232,8 +216,10 @@ export default function HeartParticles({ scene, burstTrigger, theme = "midnight"
         ctx.shadowColor = p.color;
         ctx.fillStyle = p.color;
         
-        // Draw the custom Bezier heart path
-        drawHeartPath(ctx, p.x, p.y, p.size * 0.5);
+        // Draw glowing bubble (circle) instead of heart
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * 0.5, 0, Math.PI * 2);
+        ctx.closePath();
         ctx.fill();
         
         // White stroke overlay core for a neon burst glow
