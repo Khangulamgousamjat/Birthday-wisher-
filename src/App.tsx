@@ -21,7 +21,7 @@ function App() {
           className="absolute inset-0 w-full h-full object-cover"
           style={{ willChange: "transform" }}
         >
-          <source src="/bright shimmering dust flickering particles light background purple video_1080p.mp4" type="video/mp4" />
+          <source src="/background.mp4" type="video/mp4" />
         </video>
         {/* Thin dark overlay — lets video show, keeps text readable */}
         <div className="absolute inset-0 bg-black/20" />
