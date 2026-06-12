@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import SpotlightCard from "@/components/SpotlightCard";
 import { Button } from "@/components/ui/Button";
 import { MouseTrail } from "@/components/effects/MouseTrail";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Copy, Sparkles, ArrowRight, CheckCircle2, Play, Pause, Music, User, Mail, Image as ImageIcon, Music2, Eye, Heart } from "lucide-react";
 import { saveSurpriseData } from "@/lib/db";
 import { db } from "@/lib/firebase";
@@ -67,6 +67,11 @@ export default function Home() {
       }
       if (previewUrlRef.current) {
         URL.revokeObjectURL(previewUrlRef.current);
+      }
+      // Release audio resources
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
       }
     };
   }, []);
@@ -242,7 +247,6 @@ export default function Home() {
         setGeneratedLink(`${window.location.origin}/surprise/${id}`);
       }
     } catch (err: any) {
-      console.error(err);
       setError(err.message || "Failed to generate magic link. Please check your connection and tries.");
     } finally {
       setIsGenerating(false);
@@ -283,11 +287,9 @@ export default function Home() {
         audio.src = encodedSource;
         audio.load();
       }
-      audio.play().catch(err => {
-        console.error("Playback blocked or failed:", err);
-      });
-    } catch (err) {
-      console.error("Audio error:", err);
+      audio.play().catch(() => { /* Playback blocked by browser policy */ });
+    } catch {
+      // Audio setup failed silently
     }
   };
 
@@ -306,7 +308,7 @@ export default function Home() {
       <MouseTrail />
       
       <div className="flex-1 flex flex-col items-center justify-center w-full max-w-xl z-10 py-8">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
@@ -322,9 +324,9 @@ export default function Home() {
           <p className="magic-subtitle max-w-md mx-auto">
             Craft a beautiful, personalized animated experience for someone special.
           </p>
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
            initial={{ opacity: 0, scale: 0.95 }}
            animate={{ opacity: 1, scale: 1 }}
            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
@@ -387,7 +389,7 @@ export default function Home() {
             </div>
           )}
 
-        <motion.div
+        <m.div
           className="magic-card w-full"
           initial={{ opacity: 0, y: 32, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -481,7 +483,7 @@ export default function Home() {
                   {imageError && <p className="text-red-400 text-xs mt-1 ml-1">{imageError}</p>}
                   <div className="mt-2 ml-1">
                     {previewUrl ? (
-                      <motion.div
+                      <m.div
                         className="photo-preview"
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
@@ -489,7 +491,7 @@ export default function Home() {
                       >
                         <img src={previewUrl} alt="Preview" className="photo-thumb" />
                         <span className="photo-check">✓ Photo ready</span>
-                      </motion.div>
+                      </m.div>
                     ) : imageFileName && !imageError ? (
                       <p className="text-green-400 text-xs">✓ {imageFileName} attached</p>
                     ) : (
@@ -556,11 +558,7 @@ export default function Home() {
                         type="button"
                         onClick={togglePreview}
                         disabled={selectedMusic === "none" || (selectedMusic === "custom" && !musicFile)}
-                        className={`flex items-center justify-center w-12 h-12 rounded-xl transition-all border ${
-                          isPlayingPreview 
-                            ? "bg-purple-500/20 border-purple-500/50 text-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.3)]" 
-                            : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20"
-                        } disabled:opacity-30 disabled:cursor-not-allowed`}
+                        className={`neon-btn neon-icon-btn ${isPlayingPreview ? "border-purple-400 shadow-[inset_0_0_20px_rgba(168,85,247,0.3),0_0_25px_rgba(168,85,247,0.5)]" : ""}`}
                         title={isPlayingPreview ? "Pause Preview" : "Play Preview"}
                       >
                         {isPlayingPreview ? (
@@ -569,11 +567,12 @@ export default function Home() {
                           <Play className="h-5 w-5 ml-0.5" />
                         )}
                       </button>
+
                     </div>
                   </div>
 
                   {selectedMusic === "custom" && (
-                    <motion.div 
+                    <m.div 
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       className="space-y-2 pl-2 border-l-2 border-purple-500/30"
@@ -592,12 +591,12 @@ export default function Home() {
                         className="w-full bg-white/[0.04] backdrop-blur-sm border border-white/10 rounded-xl px-4 py-2 text-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-purple-500/20 file:text-purple-300 hover:file:bg-purple-500/30 transition-all text-sm cursor-pointer"
                       />
                       {musicError && <p className="text-red-400 text-xs mt-1 ml-1">{musicError}</p>}
-                    </motion.div>
+                    </m.div>
                   )}
                 </div>
 
                 {error && (
-                  <motion.div 
+                  <m.div 
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium"
@@ -611,7 +610,7 @@ export default function Home() {
                         Tip: If you're on a free plan, you may have used all your storage. Try deleting old links or using a smaller audio file.
                       </p>
                     )}
-                  </motion.div>
+                  </m.div>
                 )}
 
                 <Button 
@@ -637,7 +636,7 @@ export default function Home() {
                 </Button>
               </form>
             ) : (
-              <motion.div 
+              <m.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="space-y-8 text-center relative z-10 py-6"
@@ -738,11 +737,11 @@ export default function Home() {
                     </Button>
                   </a>
                 </div>
-              </motion.div>
+              </m.div>
             )}
           </SpotlightCard>
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
     </div>
       
       {/* Footer */}
@@ -767,7 +766,7 @@ export default function Home() {
         onPause={() => setIsPlayingPreview(false)}
         onEnded={() => setIsPlayingPreview(false)}
         className="hidden" 
-        preload="auto"
+        preload="none"
       />
     </main>
   );

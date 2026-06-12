@@ -9,22 +9,13 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, containerClassName = "", children, ...props }, ref) => {
     return (
-      <div className={cn("noise-container", containerClassName)}>
-        <div className="gradient-layer gradient-1" />
-        <div className="gradient-layer gradient-2" />
-        <div className="gradient-layer gradient-3" />
-        <div className="top-strip" />
-        <div className="noise-overlay" />
-        <div className="content-wrapper">
-          <button
-            ref={ref}
-            className={cn("publish-btn", className)}
-            {...props}
-          >
-            {children}
-          </button>
-        </div>
-      </div>
+      <button
+        ref={ref}
+        className={cn("neon-btn", containerClassName.includes("w-full") ? "w-full" : "", className)}
+        {...props}
+      >
+        {children}
+      </button>
     );
   }
 );

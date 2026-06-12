@@ -18,7 +18,7 @@ export type SurpriseData = {
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number, errorMessage: string): Promise<T> {
   return Promise.race([
     promise,
-    new Promise<never>((_, reject) => 
+    new Promise<never>((_, reject) =>
       setTimeout(() => reject(new Error(errorMessage)), timeoutMs)
     )
   ]);
@@ -27,16 +27,11 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number, errorMessage: st
 async function uploadFile(file: File | Blob, path: string): Promise<string | null> {
   try {
     const storageRef = ref(storage, `surprises/${path}`);
-    console.log(`Uploading file to: surprises/${path}`);
-    
-    // Set a 15-second timeout for the file upload
     const snapshot = await withTimeout(
-      uploadBytes(storageRef, file), 
-      15000, 
+      uploadBytes(storageRef, file),
+      15000,
       "File upload timed out. Please check your Firebase Storage setup and connection."
     );
-    
-    console.log("File uploaded successfully, retrieving download URL...");
     const downloadURL = await getDownloadURL(snapshot.ref);
     return downloadURL;
   } catch (error: any) {
@@ -48,8 +43,6 @@ async function uploadFile(file: File | Blob, path: string): Promise<string | nul
 export async function getSurpriseData(short_id: string): Promise<SurpriseData | null> {
   try {
     const docRef = doc(db, 'surprises', short_id);
-    
-    // Set a 10-second timeout for reading Firestore
     const docSnap = await withTimeout(
       getDoc(docRef),
       10000,
@@ -68,7 +61,6 @@ export async function getSurpriseData(short_id: string): Promise<SurpriseData | 
       const now = Date.now();
       const fortyEightHoursMs = 48 * 60 * 60 * 1000;
       if (now - createdTime > fortyEightHoursMs) {
-        console.log(`Document ${short_id} has expired (created > 48h ago). Deleting...`);
         deleteDoc(docRef).catch((err) => console.error("Error deleting expired document:", err));
         return null;
       }
@@ -90,27 +82,26 @@ export async function getSurpriseData(short_id: string): Promise<SurpriseData | 
   }
 }
 
-export async function saveSurpriseData(record: { 
-  name: string, 
-  message: string, 
+export async function saveSurpriseData(record: {
+  name: string,
+  message: string,
   imageBase64?: string | null,
-  musicFile?: File | null 
+  musicFile?: File | null
 }): Promise<string> {
   const short_id = Math.random().toString(36).substring(2, 10);
-  
+
   try {
     let image_path = record.imageBase64 || undefined;
     let music_path = undefined;
 
-    // 1. Upload Music if exists
+    // Upload Music if provided
     if (record.musicFile) {
       const ext = record.musicFile.name.split('.').pop() || 'mp3';
       const fileName = `${short_id}_music.${ext}`;
       music_path = await uploadFile(record.musicFile, fileName) || undefined;
     }
 
-    // 3. Save surprise details in Firestore surprises collection
-    console.log("Writing document to Firestore surprises collection...");
+    // Save surprise details in Firestore surprises collection
     await withTimeout(
       setDoc(doc(db, 'surprises', short_id), {
         short_id,
@@ -125,8 +116,7 @@ export async function saveSurpriseData(record: {
       10000,
       "Database save timed out. Please check your Firestore database setup and internet connection."
     );
-  
-    console.log("Document saved successfully with ID:", short_id);
+
     return short_id;
   } catch (err: any) {
     console.error("Failed to save surprise data to Firestore:", err);

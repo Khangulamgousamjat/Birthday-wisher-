@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { getSurpriseData, incrementViewCount, incrementReactions } from "@/lib/db";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Music, Music4, Play, Share2, Copy, RefreshCw, CheckCircle2, Sparkles, ArrowRight, Heart } from "lucide-react";
 // Import components and assets
 import { Button } from "@/components/ui/Button";
@@ -37,8 +37,6 @@ export default function Surprise() {
           image_path: result.image_path,
           music_path: result.music_path
         });
-      } else {
-        console.error("Surprise not found");
       }
       setIsLoading(false);
     };
@@ -158,10 +156,13 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
 
     audioRef.current = new Audio(customMusic || "/Happy Birthday Song.mp3");
     audioRef.current.loop = true;
+    audioRef.current.preload = "auto";
 
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
+        audioRef.current.src = ''; // Release memory
+        audioRef.current = null;
       }
     };
   }, [customMusic]);
@@ -185,7 +186,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
     // Autoplay gate workaround - play audio with volume ramp from 0 to 1 over 2000ms
     if (customMusic !== "none" && audioRef.current && !isPlaying) {
       audioRef.current.volume = 0;
-      audioRef.current.play().catch(e => console.log("Audio play blocked", e));
+      audioRef.current.play().catch(() => { /* Browser autoplay policy */ });
       setIsPlaying(true);
       
       let currentVolume = 0;
@@ -212,7 +213,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
   const startExperience = () => {
     // Legacy fallback (no envelope clicked)
     if (customMusic !== "none" && audioRef.current && !isPlaying) {
-      audioRef.current.play().catch(e => console.log("Audio play blocked", e));
+      audioRef.current.play().catch(() => { /* Browser autoplay policy */ });
       setIsPlaying(true);
     }
     setScene(1);
@@ -322,8 +323,8 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
           title: 'A Magic Web Link For You',
           url: window.location.href,
         });
-      } catch (err) {
-        console.error(err);
+      } catch {
+        copyLink();
       }
     } else {
       copyLink();
@@ -386,18 +387,19 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
 
       <AnimatePresence>
         {scene > 0 && customMusic !== "none" && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="absolute top-6 right-6 z-50 flex gap-4"
           >
             <button
               onClick={toggleMusic}
-              className="p-3 rounded-full bg-white/5 border border-white/10 text-white/80 hover:bg-white/10 hover:text-white transition-all backdrop-blur-md"
+              className="neon-btn neon-icon-btn"
             >
               {isPlaying ? <Music className="w-5 h-5" /> : <Music4 className="w-5 h-5 opacity-50" />}
             </button>
-          </motion.div>
+
+          </m.div>
         )}
       </AnimatePresence>
 
@@ -406,20 +408,20 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
           {/* Reaction toast notification */}
           <AnimatePresence>
             {showReactionToast && (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: 50, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -20, scale: 0.9 }}
                 className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-tr from-purple-900/90 to-pink-900/90 border border-pink-500/30 px-5 py-3 rounded-full text-white text-sm font-semibold shadow-lg backdrop-blur-md flex items-center gap-2"
               >
                 <span>💌</span> Your love was sent!
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
 
           {/* Scene 0: Sealed Envelope Autoplay Gate */}
           {scene === 0 && (
-            <motion.div
+            <m.div
               key="start"
               exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
               transition={{ duration: 0.8 }}
@@ -429,7 +431,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                 You received a sealed letter...
               </h2>
 
-              <motion.div
+              <m.div
                 whileHover={{ rotateY: 5, scale: 1.03 }}
                 animate={{ scale: [1, 1.03, 1] }}
                 transition={{
@@ -444,7 +446,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
 
                 {/* Golden light burst from inside */}
                 {isEnvelopeOpen && (
-                  <motion.div 
+                  <m.div 
                     initial={{ opacity: 0, scale: 0.2 }}
                     animate={{ opacity: [0, 0.9, 0], scale: [0.2, 2.5, 4] }}
                     transition={{ duration: 0.8 }}
@@ -453,7 +455,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                 )}
 
                 {/* Envelope Flap (Triangle) */}
-                <motion.div
+                <m.div
                   animate={isEnvelopeOpen ? { rotateX: -180 } : { rotateX: 0 }}
                   transition={{ duration: 0.6, ease: "easeInOut" }}
                   className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-[#3b2269] to-[#28144b] z-30 rounded-t-2xl shadow-md transform-style-3d"
@@ -478,13 +480,13 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                 />
 
                 {/* Wax Seal */}
-                <motion.div
+                <m.div
                   animate={isEnvelopeOpen ? { scale: 0, opacity: 0 } : { scale: 1 }}
                   transition={{ duration: 0.3 }}
                   className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-gradient-to-br from-red-600 to-rose-700 border border-rose-500 flex items-center justify-center text-white text-xl font-bold shadow-[0_4px_10px_rgba(220,38,38,0.4)] z-40 cursor-pointer"
                 >
                   ♥
-                </motion.div>
+                </m.div>
 
                 {/* Sealed Text Label */}
                 {!isEnvelopeOpen && (
@@ -492,13 +494,13 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                     Click to Open
                   </span>
                 )}
-              </motion.div>
-            </motion.div>
+              </m.div>
+            </m.div>
           )}
 
           {/* Scene 1: Cinematic Preface */}
           {scene === 1 && (
-            <motion.div
+            <m.div
               key="intro"
               initial={{ opacity: 0, filter: "blur(20px)", scale: 0.95 }}
               animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
@@ -509,12 +511,12 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                 Someone created something<br />
                 <span className="text-gradient font-medium italic mt-2 inline-block">truly special for you...</span>
               </h2>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Scene 2: Name Reveal */}
           {scene === 2 && (
-            <motion.div
+            <m.div
               key="name"
               initial={{ opacity: 0, scale: 0.5, filter: "brightness(0) blur(20px)" }}
               animate={{ opacity: 1, scale: 1, filter: "brightness(1) blur(0px)" }}
@@ -527,12 +529,12 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
               <h1 className="text-6xl sm:text-7xl md:text-9xl font-bold text-gradient-gold drop-shadow-[0_0_30px_rgba(234,179,8,0.5)] whitespace-normal break-words leading-tight">
                 {data.name}
               </h1>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Scene 3: Message Typing */}
           {scene === 3 && (
-            <motion.div
+            <m.div
               key="message"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -541,7 +543,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
               className="max-w-full md:max-w-2xl mx-auto px-4 sm:px-6 relative w-full"
             >
               <div className="absolute inset-0 bg-[var(--theme-primary)]/10 blur-[60px] z-[-1]" />
-              <motion.p
+              <m.p
                 className="text-2xl md:text-4xl leading-relaxed font-light text-white/90"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -555,7 +557,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                     return <span key={index}> </span>;
                   }
                   return (
-                    <motion.span
+                    <m.span
                       key={index}
                       initial={{ opacity: 0, y: 5, filter: "blur(3px)" }}
                       animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -563,13 +565,13 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                       className="inline-block"
                     >
                       {word}
-                    </motion.span>
+                    </m.span>
                   );
                 })}
-              </motion.p>
+              </m.p>
               <AnimatePresence>
                 {showContinue && (
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="mt-12"
@@ -581,15 +583,15 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                     >
                       Continue Magic
                     </Button>
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Scene 4: Beating heart click interactive */}
           {scene === 4 && (
-            <motion.div
+            <m.div
               key="interactive"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -613,7 +615,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                   </div>
                   
                   {/* The Beating Neon Heart */}
-                  <motion.div
+                  <m.div
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
                     onClick={(e) => {
@@ -629,19 +631,19 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                     className="relative z-10 flex items-center justify-center p-6 bg-white/10 rounded-full backdrop-blur-md border border-[var(--theme-accent)]/40 cursor-pointer shadow-[0_0_35px_rgba(255,255,255,0.1)] hover:border-white/60 transition-all duration-300"
                   >
                     <Heart className="w-16 h-16 md:w-20 md:h-20 text-[var(--theme-accent)] fill-[var(--theme-accent)]/90 drop-shadow-[0_0_20px_var(--theme-accent)]" />
-                  </motion.div>
+                  </m.div>
                 </div>
                 <h2 className="text-3xl md:text-4xl font-light text-white/80 tracking-widest uppercase">
                   Tap or click for magic
                 </h2>
                 <p className="text-white/50 italic">The real surprise is waiting...</p>
               </div>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Scene 5: Photo + Climax Message */}
           {scene === 5 && (
-            <motion.div
+            <m.div
               key="finale"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -649,12 +651,14 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
               className="flex flex-col items-center gap-6 animate-pulse-reduced"
             >
               {imageBase64 && (
-                <motion.img
+                <m.img
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.5 }}
                   src={imageBase64}
                   alt="Surprise Photo"
+                  loading="lazy"
+                  decoding="async"
                   className="relative z-20 mx-auto max-w-[85vw] md:max-w-lg max-h-[40vh] md:max-h-[50vh] w-auto h-auto object-contain rounded-3xl border-2 border-white/20 drop-shadow-[0_0_25px_var(--theme-accent)] shadow-2xl"
                 />
               )}
@@ -677,7 +681,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
               </div>
 
               {/* Continue to Cake Button */}
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.5, type: "spring", stiffness: 200, damping: 15 }}
@@ -691,13 +695,13 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                   <span>Continue to Cake 🎂</span>
                   <ArrowRight className="w-4 h-4" />
                 </Button>
-              </motion.div>
-            </motion.div>
+              </m.div>
+            </m.div>
           )}
 
           {/* Scene 6: Interactive Birthday Cake Blowout */}
           {scene === 6 && (
-            <motion.div
+            <m.div
               key="cakeScene"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -804,7 +808,7 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                   </p>
                 </>
               ) : (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="space-y-8 py-8"
@@ -863,12 +867,13 @@ function ExperienceClient({ data }: { data: ExperienceData }) {
                       <span>Create Your Own</span>
                     </Button>
                   </div>
-                </motion.div>
+                </m.div>
               )}
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </div>
     </div>
   );
 }
+
