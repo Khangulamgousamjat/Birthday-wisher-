@@ -22,13 +22,21 @@ function App() {
         <div className="aurora-bg" aria-hidden="true">
           <video
             autoPlay
-            loop
             muted
+            loop
             playsInline
             disablePictureInPicture
+            disableRemotePlayback
             preload="auto"
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ willChange: "transform" }}
+            className="fixed inset-0 w-full h-full object-cover z-0 pointer-events-none"
+            style={{
+              willChange: "auto",
+              opacity: 0.45,
+              transform: "translateZ(0)",
+            }}
+            onCanPlay={(e) => {
+              (e.target as HTMLVideoElement).playbackRate = 0.6;
+            }}
           >
             <source src="/background.mp4" type="video/mp4" />
           </video>
