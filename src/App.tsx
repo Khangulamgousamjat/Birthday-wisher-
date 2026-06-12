@@ -18,11 +18,22 @@ function App() {
   return (
     <LazyMotion features={domAnimation} strict>
       <div className="relative min-h-screen w-full overflow-x-hidden">
-        {/* GPU-friendly CSS Aurora Background — replaces heavy MP4 video */}
+        {/* Video Background */}
         <div className="aurora-bg" aria-hidden="true">
-          <div className="aurora-blob aurora-blob--1" />
-          <div className="aurora-blob aurora-blob--2" />
-          <div className="aurora-blob aurora-blob--3" />
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            disablePictureInPicture
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ willChange: "transform" }}
+          >
+            <source src="/background.mp4" type="video/mp4" />
+          </video>
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-black/30" />
         </div>
 
         <Routes>
